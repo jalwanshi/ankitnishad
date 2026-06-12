@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "mock-api-key",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "mock-auth-domain",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "mock-project-id",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "mock-storage-bucket",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "mock-messaging-sender-id",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "mock-app-id",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyCh36aSFsXLhXb-pOKm1GY3rEuiBL9vxnA",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "cinematic-lens-studio.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "cinematic-lens-studio",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "cinematic-lens-studio.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "160125028920",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:160125028920:web:19b8320b7f70f3f8b4f4cd",
 };
 
 // Initialize Firebase app only if config is valid or during client execution
