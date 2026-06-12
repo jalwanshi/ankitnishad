@@ -81,14 +81,14 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-main-bg py-20">
+    <div className="min-h-screen relative overflow-hidden bg-main-bg pt-0 pb-20">
       {/* BACKGROUND DECORATIONS */}
       {/* Huge subtle watermarked AN in the background */}
       <div className="absolute right-[-100px] top-10 font-display font-black text-primary-black/[0.01] text-[30rem] md:text-[50rem] leading-none select-none pointer-events-none z-0">
         AN
       </div>
 
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24 relative z-10 pt-32">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24 relative z-10 pt-4 md:pt-8">
         {/* 1. Header & Title */}
         <div className="border-b border-border-grey pb-12 mb-16">
           <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3 animate-fade-up">
@@ -102,14 +102,37 @@ export default function About() {
         {/* 2. Portrait & Biography details */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start mb-24">
           {/* Portrait Image */}
-          <div className="lg:col-span-5 relative">
-            <div className="absolute inset-0 border border-border-grey translate-x-4 translate-y-4 -z-10" />
-            <div className="relative aspect-[4/5] w-full max-w-[400px] bg-soft-bg overflow-hidden border border-border-grey mx-auto lg:mx-0">
+          <div className="lg:col-span-5 relative group">
+            {/* Decorative card background border shift */}
+            <div className="absolute inset-0 border border-border-grey translate-x-3 translate-y-3 rounded-2xl -z-10 transition-transform duration-500 group-hover:translate-x-1.5 group-hover:translate-y-1.5" />
+            
+            {/* The Image Card Container */}
+            <div className="relative aspect-[4/5] w-full max-w-[400px] bg-white rounded-2xl overflow-hidden border border-border-grey shadow-md mx-auto lg:mx-0 transition-all duration-500 hover:shadow-lg">
               <img
                 src={profile.aboutImageUrl}
                 alt="Ankit Nishad working"
                 className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
               />
+              
+              {/* Floating Badge 1: Dynamic Experience */}
+              <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md border border-[#eaeaea]/85 px-3 py-2 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.04)] z-10 flex items-center gap-2 hover:scale-105 transition-transform duration-300">
+                <span className="font-display text-[19px] font-extrabold text-primary-black leading-none">
+                  {new Date().getFullYear() - 2021}+
+                </span>
+                <span className="text-[8px] uppercase tracking-wider text-[#555] font-bold leading-tight">
+                  Years<br />Experience
+                </span>
+              </div>
+
+              {/* Floating Badge 2: Projects & Clients */}
+              <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md border border-[#eaeaea]/85 px-3.5 py-2.5 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.04)] z-10 flex flex-col gap-1 hover:scale-105 transition-transform duration-300">
+                <span className="font-display text-[17px] font-extrabold text-primary-black leading-none">
+                  {metrics.projectsDelivered || "20+"}
+                </span>
+                <span className="text-[8px] uppercase tracking-wider text-[#555] font-bold leading-none">
+                  Projects & Clients
+                </span>
+              </div>
             </div>
           </div>
 
