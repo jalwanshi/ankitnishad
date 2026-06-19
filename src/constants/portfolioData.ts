@@ -15,6 +15,7 @@ export interface Profile {
   resumeUrl: string;
   heroImageUrl: string;
   aboutImageUrl: string;
+  signatureImageUrl: string;
   metrics: {
     projectsDelivered: string;
     businessConsultations: string;
@@ -79,8 +80,8 @@ export const profileData: Profile = {
   fullName: "Ankit Nishad",
   professionalHeadline: "Business Development Manager - IT Sales & Business Automation",
   shortTagline: "Bridging the gap between business processes and technical solutions through automation, custom software, and digital growth.",
-  shortBio: "I help businesses identify growth opportunities, understand operational challenges, and connect with practical automation, custom software, and digital solutions.",
-  fullBio: "I operate at the intersection of business communication and technology execution. My expertise lies in understanding complex client processes, structuring detailed technical requirements, and coordinating the delivery of high-impact software and automation solutions. With a focus on clarity, strategic alignment, and scalability, I turn operational challenges into efficient, future-ready systems.",
+  shortBio: "I help growing businesses identify operational gaps and replace manual, disconnected processes with practical software, automation, and digital systems.",
+  fullBio: "I help growing businesses replace scattered, manual operations with clear digital systems.\n\nMy work starts by understanding how teams manage sales, operations, follow-ups, inventory, reporting, documents, communication, and customer data today.\n\nI identify where spreadsheets, WhatsApp threads, emails, registers, and disconnected tools create delays or errors. From there, I turn real workflows into practical requirements for CRM, ERP, DMS, client portals, sales automation, inventory systems, and workflow automation.\n\nThe goal is simple: recommend the right system for the real problem, not generic software for every business.",
   currentRole: "Business Automation Consultant",
   currentCompany: "Independent Practice",
   location: "Noida, India",
@@ -92,6 +93,7 @@ export const profileData: Profile = {
   resumeUrl: "/assets/resume.pdf",
   heroImageUrl: "/assets/hero-portrait.png",
   aboutImageUrl: "/assets/about-portrait.png",
+  signatureImageUrl: "/assets/image.png",
   metrics: {
     projectsDelivered: "+200",
     businessConsultations: "+50",

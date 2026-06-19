@@ -3,20 +3,66 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, ArrowUpRight, CheckCircle2, Award, Lightbulb, Users2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Award, Lightbulb, Users2 } from "lucide-react";
 import { getProfile, getMetrics } from "@/services/profileService";
 
-const defaultAboutProfile = {
-  fullName: "Ankit Nishad", professionalHeadline: "", shortTagline: "", shortBio: "", fullBio: "",
-  email: "", phone: "", linkedinUrl: "", bookingUrl: "", resumeUrl: "/assets/resume.pdf",
-  heroImageUrl: "/assets/hero-portrait.png", aboutImageUrl: "/assets/about-portrait.png",
-  metrics: { projectsDelivered: "", businessConsultations: "", toolsHandled: "", industryDomains: "", happyClients: "", automationsBuilt: "" }
+type AboutMetrics = {
+  projectsDelivered: string;
+  businessConsultations: string;
+  toolsHandled: string;
+  industryDomains: string;
+  happyClients: string;
+  automationsBuilt: string;
+};
+
+type AboutProfile = {
+  fullName: string;
+  professionalHeadline: string;
+  shortTagline: string;
+  shortBio: string;
+  fullBio: string;
+  email: string;
+  phone: string;
+  linkedinUrl: string;
+  bookingUrl: string;
+  resumeUrl: string;
+  heroImageUrl: string;
+  aboutImageUrl: string;
+  signatureImageUrl: string;
+  location: string;
+  linkedinEmbedCodes: string[];
+};
+
+const defaultAboutMetrics: AboutMetrics = {
+  projectsDelivered: "",
+  businessConsultations: "",
+  toolsHandled: "",
+  industryDomains: "",
+  happyClients: "",
+  automationsBuilt: ""
+};
+
+const defaultAboutProfile: AboutProfile = {
+  fullName: "Ankit Nishad",
+  professionalHeadline: "",
+  shortTagline: "",
+  shortBio: "",
+  fullBio: "",
+  email: "",
+  phone: "",
+  linkedinUrl: "",
+  bookingUrl: "",
+  resumeUrl: "/assets/resume.pdf",
+  heroImageUrl: "/assets/hero-portrait.png",
+  aboutImageUrl: "/assets/about-portrait.png",
+  signatureImageUrl: "/assets/image.png",
+  location: "India",
+  linkedinEmbedCodes: []
 };
 
 export default function About() {
-  const [profile, setProfile] = useState<any>(defaultAboutProfile);
-  const [metrics, setMetrics] = useState<any>(defaultAboutProfile.metrics);
+  const [profile, setProfile] = useState<AboutProfile>(defaultAboutProfile);
+  const [metrics, setMetrics] = useState<AboutMetrics>(defaultAboutMetrics);
 
   useEffect(() => {
     async function loadAboutData() {
@@ -36,6 +82,7 @@ export default function About() {
             resumeUrl: p.resumeUrl || "/assets/resume.pdf",
             heroImageUrl: p.heroImageUrl || "/assets/hero-portrait.png",
             aboutImageUrl: p.aboutImageUrl || "/assets/about-portrait.png",
+            signatureImageUrl: p.signatureImageUrl || "/assets/image.png",
             location: p.location || "India",
             linkedinEmbedCodes: p.linkedinEmbedCodes || []
           });
@@ -81,7 +128,7 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-main-bg pt-0 pb-20">
+    <div className="min-h-screen relative overflow-hidden bg-main-bg pt-0">
       {/* BACKGROUND DECORATIONS */}
       {/* Huge subtle watermarked AN in the background */}
       <div className="absolute right-[-100px] top-10 font-display font-black text-primary-black/[0.01] text-[30rem] md:text-[50rem] leading-none select-none pointer-events-none z-0">
@@ -90,114 +137,177 @@ export default function About() {
 
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24 relative z-10 pt-4 md:pt-8">
         {/* 1. Header & Title */}
-        <div className="border-b border-border-grey pb-12 mb-16">
-          <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3 animate-fade-up">
-            Biography
-          </span>
-          <h1 className="font-display text-5xl md:text-7xl font-extralight text-primary-black tracking-tight animate-fade-up delay-100">
-            About Me.
-          </h1>
+        <div className="mb-10 grid grid-cols-1 gap-8 border-b border-border-grey pb-10 md:mb-12 md:pb-12 lg:grid-cols-12 lg:items-end">
+          <div className="lg:col-span-7">
+            <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3 animate-fade-up">
+              Biography
+            </span>
+            <h1 className="font-display text-5xl md:text-7xl font-extralight text-primary-black tracking-tight animate-fade-up delay-100">
+              About Me.
+            </h1>
+          </div>
+          <p className="max-w-[500px] text-sm font-light leading-relaxed text-dark-grey lg:col-span-5 lg:justify-self-end">
+            I connect business goals with practical software systems, clear requirements, and execution that teams can actually adopt.
+          </p>
         </div>
 
         {/* 2. Portrait & Biography details */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start mb-24">
-          {/* Portrait Image */}
-          <div className="lg:col-span-5 relative group">
-            {/* Decorative card background border shift */}
-            <div className="absolute inset-0 border border-border-grey translate-x-3 translate-y-3 rounded-2xl -z-10 transition-transform duration-500 group-hover:translate-x-1.5 group-hover:translate-y-1.5" />
-            
-            {/* The Image Card Container */}
-            <div className="relative aspect-[4/5] w-full max-w-[400px] bg-white rounded-2xl overflow-hidden border border-border-grey shadow-md mx-auto lg:mx-0 transition-all duration-500 hover:shadow-lg">
-              <img
-                src={profile.aboutImageUrl}
-                alt="Ankit Nishad working"
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-              />
-              
-              {/* Floating Badge 1: Dynamic Experience */}
-              <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md border border-[#eaeaea]/85 px-3 py-2 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.04)] z-10 flex items-center gap-2 hover:scale-105 transition-transform duration-300">
-                <span className="font-display text-[19px] font-extrabold text-primary-black leading-none">
-                  {new Date().getFullYear() - 2021}+
-                </span>
-                <span className="text-[8px] uppercase tracking-wider text-[#555] font-bold leading-tight">
-                  Years<br />Experience
-                </span>
+        <div className="mb-20 border-y border-border-grey md:mb-24">
+          <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary-black">
+              Profile / 01
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-grey">
+              Business Development · Automation · Software Consulting
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 border-t border-border-grey lg:grid-cols-12">
+            {/* Portrait Image */}
+            <div className="flex flex-col p-4 sm:p-6 lg:col-span-5 lg:p-8 lg:pr-10">
+              <div className="group relative aspect-[4/5] w-full overflow-hidden bg-white">
+                <Image
+                  src={profile.aboutImageUrl}
+                  alt="Ankit Nishad working"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 520px"
+                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                />
+
+                <div className="absolute left-4 top-4 z-10 flex items-center gap-2 border border-[#eaeaea]/85 bg-white/90 px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.04)] backdrop-blur-md transition-transform duration-300 hover:scale-105">
+                  <span className="font-display text-[19px] font-extrabold leading-none text-primary-black">
+                    {new Date().getFullYear() - 2021}+
+                  </span>
+                  <span className="text-[8px] font-bold uppercase leading-tight tracking-wider text-[#555]">
+                    Years<br />Experience
+                  </span>
+                </div>
+
+                <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-1 border border-[#eaeaea]/85 bg-white/90 px-3.5 py-2.5 shadow-[0_4px_16px_rgba(0,0,0,0.04)] backdrop-blur-md transition-transform duration-300 hover:scale-105">
+                  <span className="font-display text-[17px] font-extrabold leading-none text-primary-black">
+                    {metrics.projectsDelivered || "20+"}
+                  </span>
+                  <span className="text-[8px] font-bold uppercase leading-none tracking-wider text-[#555]">
+                    Projects & Clients
+                  </span>
+                </div>
               </div>
 
-              {/* Floating Badge 2: Projects & Clients */}
-              <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md border border-[#eaeaea]/85 px-3.5 py-2.5 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.04)] z-10 flex flex-col gap-1 hover:scale-105 transition-transform duration-300">
-                <span className="font-display text-[17px] font-extrabold text-primary-black leading-none">
-                  {metrics.projectsDelivered || "20+"}
-                </span>
-                <span className="text-[8px] uppercase tracking-wider text-[#555] font-bold leading-none">
-                  Projects & Clients
-                </span>
+              <div className="grid grid-cols-2 border-x border-b border-border-grey">
+                <div className="border-b border-r border-border-grey p-4">
+                  <span className="block text-[9px] uppercase tracking-widest text-muted-grey">Name</span>
+                  <span className="mt-1 block text-sm font-medium text-primary-black">{profile.fullName}</span>
+                </div>
+                <div className="border-b border-border-grey p-4">
+                  <span className="block text-[9px] uppercase tracking-widest text-muted-grey">Location</span>
+                  <span className="mt-1 block text-sm font-medium text-primary-black">{profile.location}</span>
+                </div>
+                <div className="border-r border-border-grey p-4">
+                  <span className="block text-[9px] uppercase tracking-widest text-muted-grey">Status</span>
+                  <span className="mt-1 block text-sm font-medium text-primary-black">Open to opportunities</span>
+                </div>
+                <div className="p-4">
+                  <span className="block text-[9px] uppercase tracking-widest text-muted-grey">Email</span>
+                  <a href={`mailto:${profile.email}`} className="mt-1 block break-all text-[10px] font-medium leading-relaxed text-primary-black hover:underline sm:text-xs">
+                    {profile.email}
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-auto border-l border-primary-black pl-4 pt-6">
+                <p className="max-w-[390px] text-sm font-light leading-relaxed text-dark-grey">
+                  Building practical systems that save time, reduce errors, and give teams clearer control over daily operations.
+                </p>
+              </div>
+            </div>
+
+            {/* Biography Context */}
+            <div className="flex flex-col border-t border-border-grey p-6 sm:p-8 lg:col-span-7 lg:border-l lg:border-t-0 lg:p-10 lg:pl-12">
+              <span className="mb-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-grey">
+                The story behind the work
+              </span>
+              <h2 className="max-w-[760px] font-display text-3xl font-light leading-[1.15] text-primary-black md:text-4xl lg:text-[2.8rem]">
+                Bridging business communication and technical execution.
+              </h2>
+              <div className="mt-8 grid grid-cols-1 gap-x-10 gap-y-6 text-sm font-light leading-[1.8] text-dark-grey md:grid-cols-2 md:text-[15px]">
+                {profile.fullBio ? (
+                  profile.fullBio.split("\n\n").map((para: string, idx: number) => (
+                    <div key={idx} className="border-t border-border-grey pt-4">
+                      <span className="mb-3 block font-display text-[9px] tracking-[0.2em] text-muted-grey">
+                        0{idx + 1}
+                      </span>
+                      <p>{para}</p>
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="border-t border-border-grey pt-4">
+                      <span className="mb-3 block font-display text-[9px] tracking-[0.2em] text-muted-grey">01</span>
+                      <p>
+                        My professional journey is centered around understanding how organizations operate, uncovering operational inefficiencies, and architecting practical digital solutions that drive growth.
+                      </p>
+                    </div>
+                    <div className="border-t border-border-grey pt-4">
+                      <span className="mb-3 block font-display text-[9px] tracking-[0.2em] text-muted-grey">02</span>
+                      <p>
+                        I coordinate discovery, requirements, SOPs, and custom ERP/CRM delivery so technology stays aligned with the business objective.
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Personal signature */}
+              <div className="mt-auto flex flex-col items-start justify-between gap-5 border-t border-border-grey pt-5 sm:flex-row sm:items-end">
+                <div className="h-[90px] w-[230px] overflow-hidden md:w-[270px]">
+                  <Image
+                    src={profile.signatureImageUrl}
+                    alt={`${profile.fullName} signature`}
+                    width={360}
+                    height={240}
+                    unoptimized={profile.signatureImageUrl.startsWith("data:")}
+                    className="h-full w-full object-cover object-center"
+                  />
+                </div>
+                <div className="border-l border-primary-black/20 pl-3 sm:border-l-0 sm:border-r sm:pl-0 sm:pr-3 sm:text-right">
+                  <span className="block font-display text-sm text-primary-black">
+                    {profile.fullName}
+                  </span>
+                  {profile.professionalHeadline && (
+                    <span className="mt-0.5 block text-[9px] uppercase tracking-[0.18em] text-muted-grey">
+                      {profile.professionalHeadline}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Biography Context */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
-            <h2 className="font-display text-2xl md:text-3xl font-light text-primary-black leading-snug mb-6">
-              Bridging business communication and technical execution.
-            </h2>
-            <div className="space-y-6 text-dark-grey font-light text-base leading-relaxed">
-              {profile.fullBio ? (
-                profile.fullBio.split("\n\n").map((para: string, idx: number) => (
-                  <p key={idx}>{para}</p>
-                ))
-              ) : (
-                <>
-                  <p>
-                    My professional journey is centered around understanding how organizations operate, uncovering operational inefficiencies, and architecting practical digital solutions that drive growth.
-                  </p>
-                  <p>
-                    As a Business Development Manager and Consultant, I do not just pitch software. I coordinate initial discovery workshops, write standard operating procedures (SOPs), translate clinical and workflow requirements for developer teams, and project-manage integrations of custom ERP/CRM platforms.
-                  </p>
-                  <p>
-                    By maintaining a highly structured, strategic approach, I ensure that technology serves the business objective, and not the other way around.
-                  </p>
-                </>
-              )}
+          {/* Focus and actions */}
+          <div className="grid grid-cols-1 border-t border-border-grey lg:grid-cols-12">
+            <div className="flex flex-col justify-center p-5 lg:col-span-8">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-grey">
+                Current focus
+              </span>
+              <p className="mt-1 text-sm font-medium text-primary-black">
+                Business automation, custom software requirements, CRM/ERP systems, and workflow improvement.
+              </p>
             </div>
 
-            {/* Quick Details Table */}
-            <div className="grid grid-cols-2 gap-y-4 gap-x-8 mt-10 border-t border-border-grey pt-8">
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-muted-grey block">Name</span>
-                <span className="text-sm font-medium text-primary-black">{profile.fullName}</span>
-              </div>
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-muted-grey block">Location</span>
-                <span className="text-sm font-medium text-primary-black">{profile.location}</span>
-              </div>
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-muted-grey block">Status</span>
-                <span className="text-sm font-medium text-primary-black">Open to new opportunities</span>
-              </div>
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-muted-grey block">Email</span>
-                <a href={`mailto:${profile.email}`} className="text-sm font-medium text-primary-black hover:underline">
-                  {profile.email}
-                </a>
-              </div>
-            </div>
-
-            {/* CTA buttons */}
-            <div className="flex flex-wrap items-center gap-6 mt-10">
+            <div className="flex flex-col gap-3 border-t border-border-grey p-5 sm:flex-row lg:col-span-4 lg:border-l lg:border-t-0">
               <a
                 href={profile.resumeUrl}
                 download
-                className="group inline-flex items-center gap-1.5 bg-primary-black text-white hover:bg-transparent hover:text-primary-black border border-primary-black px-6 py-3.5 text-xs font-sans uppercase tracking-widest transition-all duration-300 font-semibold"
+                className="group inline-flex flex-1 items-center justify-center gap-1.5 border border-primary-black bg-primary-black px-5 py-3.5 text-[10px] font-semibold uppercase tracking-widest text-white transition-all duration-300 hover:bg-transparent hover:text-primary-black"
               >
                 Download Resume
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
               </a>
               <Link
                 href="/contact"
-                className="group inline-flex items-center gap-1.5 border border-border-grey hover:border-primary-black px-6 py-3.5 text-xs font-sans uppercase tracking-widest text-dark-grey hover:text-primary-black transition-all duration-300"
+                className="group inline-flex flex-1 items-center justify-center gap-1.5 border border-border-grey px-5 py-3.5 text-[10px] uppercase tracking-widest text-dark-grey transition-all duration-300 hover:border-primary-black hover:text-primary-black"
               >
-                Let's Talk
+                Let&apos;s Talk
               </Link>
             </div>
           </div>
@@ -205,8 +315,8 @@ export default function About() {
 
         {/* LinkedIn Featured Posts */}
         {profile.linkedinEmbedCodes && profile.linkedinEmbedCodes.length > 0 && (
-          <div className="border-t border-border-grey pt-20 mb-20">
-            <div className="max-w-[800px] mb-12">
+          <div className="mb-16 border-t border-border-grey pt-12 md:mb-20 md:pt-14">
+            <div className="max-w-[800px] mb-8">
               <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3">
                 Featured Insights
               </span>
@@ -229,39 +339,48 @@ export default function About() {
         )}
 
         {/* 3. Core Values Grid */}
-        <div className="border-t border-border-grey pt-20 mb-20">
-          <div className="max-w-[800px] mb-12">
-            <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3">
+        <div className="border-y border-border-grey">
+          <div className="grid grid-cols-1 gap-4 py-6 md:grid-cols-12 md:items-end">
+            <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold md:col-span-4">
               Values
             </span>
-            <h3 className="font-display text-3xl font-light text-primary-black">
+            <h3 className="font-display text-3xl font-light text-primary-black md:col-span-8">
               Professional Principles I Stand By
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 border-t border-border-grey md:grid-cols-2 xl:grid-cols-4">
             {brandValues.map((value, i) => (
               <div
                 key={i}
-                className="border border-border-grey bg-white p-8 hover:border-primary-black transition-colors duration-300"
+                className={`group bg-white p-7 transition-colors duration-300 hover:bg-soft-bg/60 ${
+                  i > 0 ? "border-t border-border-grey md:border-l md:border-t-0" : ""
+                } ${i === 2 ? "md:border-l-0 md:border-t xl:border-l xl:border-t-0" : ""}`}
               >
-                <div className="flex items-center gap-3 mb-4">
-                  {value.icon}
+                <div className="mb-8 flex items-center justify-between gap-3">
+                  <span className="font-display text-xs tracking-[0.2em] text-muted-grey">
+                    0{i + 1}
+                  </span>
+                  <div className="transition-transform duration-300 group-hover:scale-110">
+                    {value.icon}
+                  </div>
+                </div>
+                <div>
                   <h4 className="font-display text-lg font-normal text-primary-black">
                     {value.title}
                   </h4>
+                  <p className="mt-3 text-xs text-dark-grey leading-relaxed font-light">
+                    {value.description}
+                  </p>
                 </div>
-                <p className="text-xs text-dark-grey leading-relaxed font-light">
-                  {value.description}
-                </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* 4. Stats Summary Panel */}
-        <div className="bg-[#151515] text-[#D1D1D1] px-8 py-12 md:py-16 md:px-16 border border-border-grey/10 grid grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="text-center">
+        <div className="grid grid-cols-2 border border-border-grey/10 bg-[#151515] text-[#D1D1D1] lg:grid-cols-4">
+          <div className="p-7 text-center md:p-10">
             <span className="font-display text-4xl md:text-5xl font-light text-white block">
               {metrics.projectsDelivered}
             </span>
@@ -269,7 +388,7 @@ export default function About() {
               Projects Managed
             </span>
           </div>
-          <div className="text-center">
+          <div className="border-l border-white/10 p-7 text-center md:p-10">
             <span className="font-display text-4xl md:text-5xl font-light text-white block">
               {metrics.toolsHandled}
             </span>
@@ -277,7 +396,7 @@ export default function About() {
               Tools Handled
             </span>
           </div>
-          <div className="text-center">
+          <div className="border-t border-white/10 p-7 text-center md:p-10 lg:border-l lg:border-t-0">
             <span className="font-display text-4xl md:text-5xl font-light text-white block">
               {metrics.industryDomains}
             </span>
@@ -285,7 +404,7 @@ export default function About() {
               Industry Domains
             </span>
           </div>
-          <div className="text-center">
+          <div className="border-l border-t border-white/10 p-7 text-center md:p-10 lg:border-t-0">
             <span className="font-display text-4xl md:text-5xl font-light text-white block">
               {metrics.automationsBuilt}
             </span>

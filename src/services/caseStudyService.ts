@@ -14,23 +14,27 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { CaseStudy } from "@/types/portfolio";
+import { cachedFetch, invalidateCache } from "@/lib/cache";
+import { addDocumentsInBatches } from "@/lib/firestoreBulk";
 
 const COLLECTION_NAME = "projects";
 
 export async function getPublishedCaseStudies(): Promise<CaseStudy[]> {
-  try {
-    const colRef = collection(db, COLLECTION_NAME);
-    const q = query(colRef, where("published", "==", true));
-    const querySnapshot = await getDocs(q);
-    const projects: CaseStudy[] = [];
-    querySnapshot.forEach((docSnap) => {
-      projects.push({ id: docSnap.id, ...docSnap.data() } as CaseStudy);
-    });
-    return projects.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-  } catch (error) {
-    console.error("Error fetching published case studies:", error);
-    return [];
-  }
+  return cachedFetch("projects:published", async () => {
+    try {
+      const colRef = collection(db, COLLECTION_NAME);
+      const q = query(colRef, where("published", "==", true));
+      const querySnapshot = await getDocs(q);
+      const projects: CaseStudy[] = [];
+      querySnapshot.forEach((docSnap) => {
+        projects.push({ id: docSnap.id, ...docSnap.data() } as CaseStudy);
+      });
+      return projects.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    } catch (error) {
+      console.error("Error fetching published case studies:", error);
+      return [];
+    }
+  });
 }
 
 export async function getAllCaseStudies(): Promise<CaseStudy[]> {
@@ -81,7 +85,16 @@ export async function createCaseStudy(project: Omit<CaseStudy, "id">): Promise<s
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
+  invalidateCache("projects:published");
   return docRef.id;
+}
+
+export async function createCaseStudiesBulk(
+  projects: Omit<CaseStudy, "id">[]
+): Promise<number> {
+  const imported = await addDocumentsInBatches(COLLECTION_NAME, projects);
+  invalidateCache("projects:published");
+  return imported;
 }
 
 export async function updateCaseStudy(id: string, project: Partial<CaseStudy>): Promise<void> {
@@ -90,9 +103,11 @@ export async function updateCaseStudy(id: string, project: Partial<CaseStudy>): 
     ...project,
     updatedAt: serverTimestamp()
   }, { merge: true });
+  invalidateCache("projects:published");
 }
 
 export async function deleteCaseStudy(id: string): Promise<void> {
   const docRef = doc(db, COLLECTION_NAME, id);
   await deleteDoc(docRef);
+  invalidateCache("projects:published");
 }

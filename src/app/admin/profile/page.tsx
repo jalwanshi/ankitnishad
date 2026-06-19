@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 import { getProfile, saveProfile } from "@/services/profileService";
 import { Profile } from "@/types/portfolio";
-import { Trash2 } from "lucide-react";
+import { Files, Trash2 } from "lucide-react";
+import BulkImportModal from "@/components/admin/BulkImportModal";
+import {
+  BulkImportRecord,
+  getString,
+  requireFields
+} from "@/lib/bulkImport";
 
 export default function AdminProfile() {
   const [formData, setFormData] = useState<Profile | null>(null);
@@ -11,6 +17,7 @@ export default function AdminProfile() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "success" });
   const [activeTab, setActiveTab] = useState("personal");
+  const [showLinkedInBulkModal, setShowLinkedInBulkModal] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -42,6 +49,28 @@ export default function AdminProfile() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleLinkedInBulkImport = async (records: BulkImportRecord[]) => {
+    if (!formData) throw new Error("Profile data is not available.");
+
+    const importedCodes = records.map((record, index) => {
+      requireFields(record, ["embedCode"], index + 2);
+      return getString(record, "embedCode");
+    });
+
+    setFormData({
+      ...formData,
+      linkedinEmbedCodes: [
+        ...(formData.linkedinEmbedCodes || []),
+        ...importedCodes
+      ]
+    });
+    setMessage({
+      text: `${importedCodes.length} LinkedIn posts added. Save Changes to publish them.`,
+      type: "success"
+    });
+    return importedCodes.length;
   };
 
   if (loading) {
@@ -195,16 +224,26 @@ export default function AdminProfile() {
                 <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold">
                   LinkedIn Featured Posts (Embed Codes)
                 </label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const codes = formData.linkedinEmbedCodes || [];
-                    setFormData({ ...formData, linkedinEmbedCodes: [...codes, ""] });
-                  }}
-                  className="text-[10px] uppercase tracking-widest text-primary-black font-semibold border border-primary-black px-3 py-1.5 hover:bg-primary-black hover:text-white transition-colors"
-                >
-                  + Add Post
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowLinkedInBulkModal(true)}
+                    className="flex items-center gap-1.5 border border-primary-black px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-primary-black transition-colors hover:bg-primary-black hover:text-white"
+                  >
+                    <Files className="h-3.5 w-3.5" />
+                    Bulk Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const codes = formData.linkedinEmbedCodes || [];
+                      setFormData({ ...formData, linkedinEmbedCodes: [...codes, ""] });
+                    }}
+                    className="text-[10px] uppercase tracking-widest text-primary-black font-semibold border border-primary-black px-3 py-1.5 hover:bg-primary-black hover:text-white transition-colors"
+                  >
+                    + Add Post
+                  </button>
+                </div>
               </div>
               
               {(formData.linkedinEmbedCodes || []).map((code, index) => (
@@ -400,6 +439,18 @@ export default function AdminProfile() {
           {saving ? "Saving Changes..." : "Save Changes"}
         </button>
       </form>
+
+      <BulkImportModal
+        open={showLinkedInBulkModal}
+        title="LinkedIn Posts"
+        description="Add several LinkedIn embed codes together. JSON is recommended because embed HTML can contain commas and line breaks."
+        fields={["embedCode"]}
+        sample={{
+          embedCode: '<iframe src="https://www.linkedin.com/embed/feed/update/..." title="Embedded post"></iframe>'
+        }}
+        onClose={() => setShowLinkedInBulkModal(false)}
+        onImport={handleLinkedInBulkImport}
+      />
     </div>
   );
 }

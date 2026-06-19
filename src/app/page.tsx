@@ -10,13 +10,32 @@ import { getProfile, getMetrics } from "@/services/profileService";
 import { getPublishedCareerTimeline } from "@/services/careerService";
 import { getPublishedCaseStudies } from "@/services/caseStudyService";
 import { CareerMilestone, CaseStudy } from "@/types/portfolio";
+import CaseStudyCard from "@/components/work/CaseStudyCard";
+
+const philosophyFallback =
+  "Ankit Nishad helps growing businesses replace scattered, manual operations with clear digital systems.\n\nHis work starts by understanding how teams manage sales, operations, follow-ups, inventory, reporting, documents, communication, and customer data today.\n\nHe identifies where spreadsheets, WhatsApp threads, emails, registers, and disconnected tools create delays or errors. From there, he turns real workflows into practical requirements for CRM, ERP, DMS, client portals, sales automation, inventory systems, and workflow automation.\n\nThe goal is simple: recommend the right system for the real problem, not generic software for every business.";
+
+const philosophyPrinciples = [
+  {
+    title: "Understand First",
+    description: "Study the current workflow before recommending any software, automation, or tool."
+  },
+  {
+    title: "Translate Clearly",
+    description: "Convert business pain points into structured requirements that teams and developers can act on."
+  },
+  {
+    title: "Build for Adoption",
+    description: "Design practical systems that reduce manual work, improve visibility, and are easy for teams to use."
+  }
+];
 
 const defaultProfile = {
   fullName: "Ankit Nishad",
   professionalHeadline: "",
   shortTagline: "",
   shortBio: "",
-  fullBio: "",
+  fullBio: philosophyFallback,
   email: "",
   phone: "",
   linkedinUrl: "",
@@ -92,7 +111,17 @@ export default function Home() {
     loadDynamicData();
   }, []);
 
-  const featuredProjects = projects.filter((p) => p.featured);
+  const explicitlyFeaturedProjects = projects.filter((project) => project.featured);
+  const featuredProjects = (
+    explicitlyFeaturedProjects.length > 0
+      ? explicitlyFeaturedProjects
+      : projects
+  ).slice(0, 3);
+  const philosophyParagraphs = (profile.fullBio || philosophyFallback)
+    .trim()
+    .split(/\n{2,}/)
+    .map((paragraph: string) => paragraph.trim())
+    .filter(Boolean);
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-main-bg">
@@ -118,6 +147,7 @@ export default function Home() {
               alt="Ankit Nishad" 
               fill 
               className="object-cover object-top grayscale" 
+              sizes="(max-width: 768px) 100vw, 380px"
               priority
             />
             {/* Fading the bottom and left of his torso */}
@@ -357,21 +387,75 @@ export default function Home() {
       </section>
 
       {/* 2. INTRODUCTION SECTION */}
-      <section className="py-24 border-b border-border-grey bg-soft-bg/30">
+      <section id="philosophy" className="py-20 md:py-24 border-b border-border-grey bg-main-bg scroll-mt-20">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-            <div className="lg:col-span-4">
-              <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold">
-                Philosophy
-              </span>
-            </div>
-            <div className="lg:col-span-8">
-              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-light text-primary-black leading-tight mb-8">
-                “Business growth begins with understanding the right problem.”
-              </h2>
-              <p className="max-w-[700px] text-base md:text-lg font-light text-dark-grey leading-relaxed whitespace-pre-line">
-                {profile.fullBio}
+          <div className="border-y border-border-grey">
+            <div className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold">
+                  Philosophy
+                </span>
+                <span className="hidden h-px w-16 bg-border-grey sm:block" />
+              </div>
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-grey">
+                Process before platform · Clarity before code
               </p>
+            </div>
+
+            <div className="grid grid-cols-1 border-t border-border-grey lg:grid-cols-12">
+              <div className="flex flex-col justify-between py-10 lg:col-span-5 lg:min-h-[430px] lg:py-14 lg:pr-14">
+                <h2 className="max-w-[560px] font-display text-3xl font-light leading-[1.12] text-primary-black md:text-4xl lg:text-[3.25rem]">
+                  I do not start with software. I start with how the business actually works.
+                </h2>
+
+                <div className="mt-10 max-w-[390px] border-l border-primary-black pl-5 lg:mt-16">
+                  <p className="text-sm font-light leading-relaxed text-dark-grey">
+                    Practical consulting for businesses that need clear systems, not more scattered tools.
+                  </p>
+                  <span className="mt-4 block text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-grey">
+                    Understand · Structure · Improve
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t border-border-grey py-10 lg:col-span-7 lg:border-l lg:border-t-0 lg:py-14 lg:pl-14">
+                <div className="grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2">
+                  {philosophyParagraphs.map((paragraph: string, index: number) => (
+                    <div key={index} className="border-t border-border-grey pt-4">
+                      <span className="mb-3 block font-display text-[10px] tracking-[0.2em] text-muted-grey">
+                        0{index + 1}
+                      </span>
+                      <p className="text-sm font-light leading-[1.8] text-dark-grey md:text-[15px]">
+                        {paragraph}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 border-t border-border-grey md:grid-cols-3">
+              {philosophyPrinciples.map((principle, index) => (
+                <div
+                  key={principle.title}
+                  className={`group p-7 transition-colors duration-300 hover:bg-soft-bg/60 lg:p-8 ${
+                    index > 0 ? "border-t border-border-grey md:border-l md:border-t-0" : ""
+                  }`}
+                >
+                  <div className="mb-8 flex items-center justify-between">
+                    <span className="font-display text-xs tracking-[0.2em] text-muted-grey">
+                      0{index + 1}
+                    </span>
+                    <span className="h-2 w-2 rounded-full border border-primary-black transition-colors duration-300 group-hover:bg-primary-black" />
+                  </div>
+                  <h3 className="mb-3 font-display text-xl font-normal leading-snug text-primary-black">
+                    {principle.title}
+                  </h3>
+                  <p className="text-sm font-light leading-relaxed text-dark-grey">
+                    {principle.description}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -380,9 +464,9 @@ export default function Home() {
 
 
       {/* 4. FEATURED SELECTED WORK */}
-      <section className="py-24 border-b border-border-grey bg-soft-bg/30">
+      <section className="border-b border-border-grey bg-soft-bg/30 py-20 md:py-24">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+          <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
               <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3">
                 Selected Work
@@ -400,75 +484,23 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-            {featuredProjects.map((project) => (
-              <Link
-                key={project.id}
-                href={`/work/${project.slug}`}
-                className="group flex flex-col border border-border-grey bg-white hover:border-primary-black transition-all duration-300"
-              >
-                {/* Cover Image */}
-                <div className="relative aspect-[16/10] bg-soft-bg overflow-hidden border-b border-border-grey">
-                  <Image
-                    src={project.coverImageUrl || "/assets/hospital-automation-cover.png"}
-                    alt={project.title}
-                    fill
-                    className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.02] transition-all duration-700"
-                    sizes="(max-w-768px) 100vw, 600px"
-                  />
-                  <div className="absolute inset-0 bg-primary-black/0 group-hover:bg-primary-black/10 transition-colors duration-300" />
-                  <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 text-[9px] uppercase tracking-widest text-primary-black font-semibold border border-border-grey">
-                    {project.projectType || project.industry}
-                  </div>
-                </div>
-
-                {/* Details */}
-                <div className="p-8 flex flex-col justify-between flex-grow">
-                  <div>
-                    <div className="flex items-center justify-between gap-4 mb-3">
-                      <span className="text-[10px] tracking-widest uppercase text-muted-grey">
-                        {project.industry} • {project.year || (project as any).timeline || ""}
-                      </span>
-                      <span className="text-[9px] px-2 py-0.5 border border-border-grey text-muted-grey uppercase tracking-widest rounded-full font-medium">
-                        {project.status}
-                      </span>
-                    </div>
-                    <h4 className="font-display text-xl font-normal text-primary-black mb-3 group-hover:text-primary-black transition-colors flex items-center justify-between">
-                      {project.title}
-                      <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                    </h4>
-                    <p className="text-xs text-dark-grey leading-relaxed font-light mb-6">
-                      {project.businessChallenge}
-                    </p>
-                  </div>
-
-                  {/* Impact Results */}
-                  <div className="grid grid-cols-2 gap-4 border-t border-border-grey pt-6 mt-4">
-                    {(project.actualResults?.timeSaved || (project as any).timeSaved) && (
-                      <div>
-                        <span className="text-[9px] uppercase tracking-widest text-muted-grey block">
-                          Time Saved
-                        </span>
-                        <span className="text-xs font-semibold text-primary-black">
-                          {project.actualResults?.timeSaved || (project as any).timeSaved}
-                        </span>
-                      </div>
-                    )}
-                    {(project.actualResults?.workReduced || (project as any).manualWorkReduction) && (
-                      <div>
-                        <span className="text-[9px] uppercase tracking-widest text-muted-grey block">
-                          Manual Labor
-                        </span>
-                        <span className="text-xs font-semibold text-primary-black">
-                          {project.actualResults?.workReduced || (project as any).manualWorkReduction}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          {featuredProjects.length > 0 ? (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {featuredProjects.map((project) => (
+                <CaseStudyCard
+                  key={project.id}
+                  project={project}
+                  imageSizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-border-grey bg-white px-6 py-14 text-center">
+              <p className="text-xs uppercase tracking-widest text-muted-grey">
+                Case studies will appear here after they are published.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

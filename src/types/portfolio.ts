@@ -18,6 +18,7 @@ export interface Profile {
   resumeUrl?: string;
   heroImageUrl?: string;
   aboutImageUrl?: string;
+  signatureImageUrl?: string;
   linkedinEmbedCodes?: string[];
 }
 

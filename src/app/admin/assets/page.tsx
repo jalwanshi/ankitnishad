@@ -1,10 +1,43 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useState } from "react";
 import { getProfile, saveProfile } from "@/services/profileService";
 import { validateFile, uploadAsset } from "@/services/assetService";
 import { Profile } from "@/types/portfolio";
-import { Image as ImageIcon, FileText, Upload, RefreshCw, Eye, AlertCircle, Check } from "lucide-react";
+import { Image as ImageIcon, FileText, PenLine, Upload, Eye, Check } from "lucide-react";
+
+type AssetUploadType = "hero" | "about" | "signature" | "resume";
+
+const uploadConfig: Record<
+  AssetUploadType,
+  {
+    folder: "hero" | "about" | "signature" | "resume";
+    field: "heroImageUrl" | "aboutImageUrl" | "signatureImageUrl" | "resumeUrl";
+    successLabel: string;
+  }
+> = {
+  hero: {
+    folder: "hero",
+    field: "heroImageUrl",
+    successLabel: "Hero portrait"
+  },
+  about: {
+    folder: "about",
+    field: "aboutImageUrl",
+    successLabel: "About portrait"
+  },
+  signature: {
+    folder: "signature",
+    field: "signatureImageUrl",
+    successLabel: "Signature image"
+  },
+  resume: {
+    folder: "resume",
+    field: "resumeUrl",
+    successLabel: "Resume PDF"
+  }
+};
 
 export default function AdminAssets() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -14,6 +47,7 @@ export default function AdminAssets() {
   // Upload states
   const [heroProgress, setHeroProgress] = useState(-1);
   const [aboutProgress, setAboutProgress] = useState(-1);
+  const [signatureProgress, setSignatureProgress] = useState(-1);
   const [resumeProgress, setResumeProgress] = useState(-1);
 
   useEffect(() => {
@@ -30,7 +64,7 @@ export default function AdminAssets() {
     fetchProfile();
   }, []);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "hero" | "about" | "resume") => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: AssetUploadType) => {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
     setMessage({ text: "", type: "success" });
@@ -43,29 +77,35 @@ export default function AdminAssets() {
     }
 
     // Set progress state
-    const setProgress = type === "hero" ? setHeroProgress : type === "about" ? setAboutProgress : setResumeProgress;
+    const progressSetters = {
+      hero: setHeroProgress,
+      about: setAboutProgress,
+      signature: setSignatureProgress,
+      resume: setResumeProgress
+    };
+    const setProgress = progressSetters[type];
     setProgress(0);
 
     try {
-      const folder = type === "hero" ? "hero" : type === "about" ? "about" : "resume";
-      const downloadUrl = await uploadAsset(file, folder, (progress) => {
+      const config = uploadConfig[type];
+      const downloadUrl = await uploadAsset(file, config.folder, (progress) => {
         setProgress(progress);
       });
 
       // Save to Firestore
-      const field = type === "hero" ? "heroImageUrl" : type === "about" ? "aboutImageUrl" : "resumeUrl";
-      await saveProfile({ [field]: downloadUrl });
+      await saveProfile({ [config.field]: downloadUrl });
       
       // Update local state
       setProfile({
         ...profile,
-        [field]: downloadUrl
+        [config.field]: downloadUrl
       });
 
-      setMessage({ text: `${type === "resume" ? "Resume PDF" : "Portrait image"} uploaded successfully!`, type: "success" });
-    } catch (err: any) {
+      setMessage({ text: `${config.successLabel} uploaded successfully!`, type: "success" });
+    } catch (err: unknown) {
       console.error(err);
-      setMessage({ text: `Upload failed: ${err.message}`, type: "error" });
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      setMessage({ text: `Upload failed: ${errorMessage}`, type: "error" });
     } finally {
       // Clear progress
       setTimeout(() => setProgress(-1), 1000);
@@ -98,7 +138,7 @@ export default function AdminAssets() {
           Visual Assets
         </h1>
         <p className="text-[10px] uppercase tracking-widest text-muted-grey mt-1">
-          Upload and manage your Hero Portrait, About Portrait, and Resume PDF document
+          Upload and manage your portraits, About Me signature, and resume document
         </p>
       </div>
 
@@ -123,7 +163,7 @@ export default function AdminAssets() {
               </h3>
             </div>
             <p className="text-[10px] uppercase tracking-widest text-muted-grey mb-4 leading-relaxed">
-              Recommended dimensions: **800 x 1000 px** (4:5 Aspect Ratio). Must be B&W portrait with transparent background. Max size 10MB.
+              Recommended dimensions: **800 x 1000 px** (4:5 Aspect Ratio). Images up to 15MB are automatically compressed and saved as Firestore-safe Base64.
             </p>
             {profile.heroImageUrl ? (
               <div className="relative aspect-[4/5] max-w-[200px] border border-border-grey bg-soft-bg mb-4 mx-auto select-none overflow-hidden">
@@ -164,7 +204,7 @@ export default function AdminAssets() {
               </h3>
             </div>
             <p className="text-[10px] uppercase tracking-widest text-muted-grey mb-4 leading-relaxed">
-              Recommended dimensions: **800 x 1000 px** (4:5 Aspect Ratio). B&W action photo representing software consultation. Max size 10MB.
+              Recommended dimensions: **800 x 1000 px** (4:5 Aspect Ratio). Images up to 15MB are automatically compressed and saved as Firestore-safe Base64.
             </p>
             {profile.aboutImageUrl ? (
               <div className="relative aspect-[4/5] max-w-[200px] border border-border-grey bg-soft-bg mb-4 mx-auto select-none overflow-hidden">
@@ -194,6 +234,53 @@ export default function AdminAssets() {
             </label>
           </div>
         </div>
+
+        {/* About Me Signature */}
+        <div className="border border-border-grey bg-white p-6 space-y-4 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <PenLine className="w-4 h-4 text-primary-black" />
+              <h3 className="font-display text-base uppercase tracking-wider text-primary-black">
+                About Me Signature
+              </h3>
+            </div>
+            <p className="text-[10px] uppercase tracking-widest text-muted-grey mb-4 leading-relaxed">
+              Use a transparent PNG with a wide layout. Images up to 15MB are automatically compressed to Base64 while preserving transparency.
+            </p>
+            {profile.signatureImageUrl ? (
+              <div className="relative aspect-[3/2] max-w-[260px] border border-border-grey bg-soft-bg mb-4 mx-auto select-none overflow-hidden p-3">
+                <img
+                  src={profile.signatureImageUrl}
+                  alt="Signature Preview"
+                  className="object-contain w-full h-full"
+                />
+              </div>
+            ) : (
+              <div className="aspect-[3/2] max-w-[260px] border border-dashed border-border-grey bg-soft-bg mb-4 mx-auto flex items-center justify-center text-[10px] text-muted-grey uppercase tracking-widest">
+                No Signature Uploaded
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            {signatureProgress >= 0 && (
+              <div className="w-full bg-border-grey h-[3px] overflow-hidden">
+                <div className="bg-black h-full transition-all duration-300" style={{ width: `${signatureProgress}%` }} />
+              </div>
+            )}
+            <label className="w-full flex justify-center items-center gap-2 border border-primary-black hover:bg-primary-black hover:text-white text-primary-black py-3 text-[10px] uppercase tracking-widest font-semibold transition-colors cursor-pointer text-center">
+              <Upload className="w-3.5 h-3.5" />
+              {signatureProgress >= 0 ? `Uploading (${signatureProgress}%)` : "Upload Signature Image"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleUpload(e, "signature")}
+                disabled={signatureProgress >= 0}
+              />
+            </label>
+          </div>
+        </div>
       </div>
 
       {/* Resume PDF */}
@@ -219,7 +306,7 @@ export default function AdminAssets() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div className="flex-grow space-y-1">
             <p className="text-[10px] uppercase tracking-widest text-muted-grey font-semibold">
-              Supported format: PDF only. Maximum size: 20MB.
+              Supported format: PDF only. Maximum size: 500KB for Base64 storage.
             </p>
             {profile.resumeUrl && (
               <a

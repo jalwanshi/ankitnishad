@@ -3,7 +3,16 @@
 import { useEffect, useState } from "react";
 import { getSocialLinks, saveSocialLinks } from "@/services/profileService";
 import { SocialLink } from "@/types/portfolio";
-import { Plus, Trash2, Edit, Save, X, Share2, ToggleLeft, ToggleRight, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Trash2, X, Files } from "lucide-react";
+import BulkImportModal from "@/components/admin/BulkImportModal";
+import {
+  BulkImportRecord,
+  createSlug,
+  getBoolean,
+  getNumber,
+  getString,
+  requireFields
+} from "@/lib/bulkImport";
 
 export default function AdminSocials() {
   const [links, setLinks] = useState<SocialLink[]>([]);
@@ -13,6 +22,7 @@ export default function AdminSocials() {
 
   // Modal and new link fields
   const [showModal, setShowModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [platform, setPlatform] = useState("");
   const [url, setUrl] = useState("");
   const [displayOrder, setDisplayOrder] = useState(1);
@@ -94,6 +104,33 @@ export default function AdminSocials() {
     setUrl("");
   };
 
+  const handleBulkImport = async (records: BulkImportRecord[]) => {
+    const importedLinks = records.map((record, index): SocialLink => {
+      requireFields(record, ["platform", "url"], index + 2);
+      const importedPlatform = getString(record, "platform");
+
+      return {
+        id: createSlug(getString(record, "id") || importedPlatform),
+        platform: importedPlatform,
+        url: getString(record, "url"),
+        isEnabled: getBoolean(record, "isEnabled", true),
+        displayOrder: getNumber(record, "displayOrder", links.length + index + 1)
+      };
+    });
+
+    const merged = new Map(links.map((link) => [link.id, link]));
+    importedLinks.forEach((link) => merged.set(link.id, link));
+    const updatedLinks = Array.from(merged.values()).sort(
+      (a, b) => a.displayOrder - b.displayOrder
+    );
+
+    await saveSocialLinks(updatedLinks);
+    setLinks(updatedLinks);
+    setMessage({ text: `${importedLinks.length} social links imported successfully!`, type: "success" });
+    setTimeout(() => setMessage({ text: "", type: "success" }), 4000);
+    return importedLinks.length;
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
@@ -115,16 +152,25 @@ export default function AdminSocials() {
             Configure social profiles, telephone channels, and B2B communication destinations
           </p>
         </div>
-        <button
-          onClick={() => {
-            setDisplayOrder(links.length + 1);
-            setShowModal(true);
-          }}
-          className="flex items-center gap-1.5 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          Add Social Link
-        </button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <button
+            onClick={() => setShowBulkModal(true)}
+            className="flex items-center gap-1.5 border border-primary-black bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-primary-black transition-colors hover:bg-primary-black hover:text-white"
+          >
+            <Files className="w-4 h-4" />
+            Bulk Add
+          </button>
+          <button
+            onClick={() => {
+              setDisplayOrder(links.length + 1);
+              setShowModal(true);
+            }}
+            className="flex items-center gap-1.5 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Add Social Link
+          </button>
+        </div>
       </div>
 
       {message.text && (
@@ -286,6 +332,22 @@ export default function AdminSocials() {
           </div>
         </div>
       )}
+
+      <BulkImportModal
+        open={showBulkModal}
+        title="Social Links"
+        description="Add multiple social, email, phone or booking links together. Matching IDs are updated instead of duplicated."
+        fields={["id", "platform", "url", "isEnabled", "displayOrder"]}
+        sample={{
+          id: "github",
+          platform: "GitHub",
+          url: "https://github.com/username",
+          isEnabled: true,
+          displayOrder: links.length + 1
+        }}
+        onClose={() => setShowBulkModal(false)}
+        onImport={handleBulkImport}
+      />
     </div>
   );
 }
