@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import { getPublishedCaseStudies } from "@/services/caseStudyService";
 import { CaseStudy } from "@/types/portfolio";
+import CaseStudyCard from "@/components/work/CaseStudyCard";
 
 export default function Work() {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -22,6 +21,8 @@ export default function Work() {
         }
       } catch (err) {
         console.error("Failed to load projects from Firestore:", err);
+      } finally {
+        setLoading(false);
       }
     }
     loadProjects();
@@ -40,14 +41,15 @@ export default function Work() {
   const filteredProjects = activeFilter === "All"
     ? projects
     : projects.filter((project) => {
-        const typeStr = ((project as any).projectType || project.industry || "").toLowerCase();
+        const typeStr = (project.projectType || project.industry || "").toLowerCase();
         const titleStr = (project.title || "").toLowerCase();
+        const technologyStr = (project.technologies || []).join(" ").toLowerCase();
         
         if (activeFilter === "Automation") {
-          return typeStr.includes("automation") || titleStr.includes("automation");
+          return typeStr.includes("automation") || titleStr.includes("automation") || technologyStr.includes("automation");
         }
         if (activeFilter === "CRM/ERP") {
-          return typeStr.includes("erp") || typeStr.includes("crm") || titleStr.includes("erp") || titleStr.includes("crm");
+          return typeStr.includes("erp") || typeStr.includes("crm") || titleStr.includes("erp") || titleStr.includes("crm") || technologyStr.includes("erp") || technologyStr.includes("crm");
         }
         if (activeFilter === "Document Automation") {
           return typeStr.includes("document") || titleStr.includes("document");
@@ -103,102 +105,44 @@ export default function Work() {
           </div>
         </div>
 
-        {/* Asymmetric Editorial Grid */}
-        <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        {/* Compact case study cards */}
+        <motion.div layout className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project) => {
-              const timeSavedVal = project.timeSaved || project.actualResults?.timeSaved;
-              const workReducedVal = project.manualWorkReduction || project.actualResults?.workReduced;
-              const yearVal = (project as any).year || (project as any).timeline || "2024";
-
-              return (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.4 }}
-                  key={project.id}
-                >
-                  <Link
-                    href={`/work/${project.slug}`}
-                    className="group flex flex-col border border-border-grey bg-white hover:border-primary-black transition-all duration-300 h-full"
-                  >
-                    {/* Image wrapper */}
-                    <div className="relative aspect-[16/10] bg-soft-bg overflow-hidden border-b border-border-grey">
-                      <Image
-                        src={project.coverImageUrl || "/assets/hospital-automation-cover.png"}
-                        alt={project.title}
-                        fill
-                        className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.02] transition-all duration-700"
-                        sizes="(max-w-768px) 100vw, 600px"
-                      />
-                      <div className="absolute inset-0 bg-primary-black/0 group-hover:bg-primary-black/10 transition-colors duration-300" />
-                      {/* View project cursor overlay (desktop only) */}
-                      <div className="absolute inset-0 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span className="bg-primary-black text-white text-[10px] uppercase tracking-widest px-4 py-2 border border-primary-black">
-                          View Project
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Context wrapper */}
-                    <div className="p-8 flex flex-col justify-between flex-grow">
-                      <div>
-                        <div className="flex items-center justify-between gap-4 mb-3">
-                          <span className="text-[10px] tracking-widest uppercase text-muted-grey">
-                            {project.industry} • {yearVal}
-                          </span>
-                          <span className="text-[9px] px-2 py-0.5 border border-border-grey text-muted-grey uppercase tracking-widest rounded-full font-medium">
-                            {project.published ? "Published" : "Draft"}
-                          </span>
-                        </div>
-                        <h3 className="font-display text-2xl font-light text-primary-black mb-3 flex items-center justify-between">
-                          {project.title}
-                          <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300" />
-                        </h3>
-                        <p className="text-xs text-dark-grey leading-relaxed font-light mb-6">
-                          {project.businessChallenge}
-                        </p>
-                      </div>
-
-                      {/* Results / Impact list */}
-                      <div className="border-t border-border-grey pt-6 mt-4 grid grid-cols-2 gap-4">
-                        {timeSavedVal && (
-                          <div>
-                            <span className="text-[9px] uppercase tracking-widest text-muted-grey block mb-1">
-                              Time Saved
-                            </span>
-                            <span className="text-xs font-semibold text-primary-black">
-                              {timeSavedVal}
-                            </span>
-                          </div>
-                        )}
-                        {workReducedVal && (
-                          <div>
-                            <span className="text-[9px] uppercase tracking-widest text-muted-grey block mb-1">
-                              Manual Work Reduced
-                            </span>
-                            <span className="text-xs font-semibold text-primary-black">
-                              {workReducedVal}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
+            {filteredProjects.map((project) => (
+              <motion.div
+                layout
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.3 }}
+                key={project.id}
+              >
+                <CaseStudyCard
+                  project={project}
+                  imageSizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                />
+              </motion.div>
+            ))}
           </AnimatePresence>
         </motion.div>
 
         {/* Empty state */}
-        {filteredProjects.length === 0 && (
+        {!loading && filteredProjects.length === 0 && (
           <div className="text-center py-20 border border-dashed border-border-grey">
             <p className="text-xs text-muted-grey uppercase tracking-widest">
               No projects found in this category.
             </p>
+          </div>
+        )}
+
+        {loading && (
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {[0, 1, 2].map((item) => (
+              <div
+                key={item}
+                className="h-[360px] animate-pulse rounded-2xl border border-border-grey bg-white"
+              />
+            ))}
           </div>
         )}
       </div>

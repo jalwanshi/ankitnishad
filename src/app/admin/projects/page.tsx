@@ -1,15 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Edit, Save, X, Eye, Image as ImageIcon, Check } from "lucide-react";
+import { Plus, Trash2, Edit, X, Files } from "lucide-react";
 import {
   getAllCaseStudies,
   createCaseStudy,
+  createCaseStudiesBulk,
   updateCaseStudy,
   deleteCaseStudy
 } from "@/services/caseStudyService";
-import { uploadAsset } from "@/services/assetService";
+import {
+  ensureFirestoreSafeImage,
+  uploadAsset
+} from "@/services/assetService";
 import { CaseStudy } from "@/types/portfolio";
+import BulkImportModal from "@/components/admin/BulkImportModal";
+import {
+  BulkImportRecord,
+  createSlug,
+  getBoolean,
+  getNumber,
+  getString,
+  getStringList,
+  requireFields
+} from "@/lib/bulkImport";
 
 export default function AdminProjects() {
   const [list, setList] = useState<CaseStudy[]>([]);
@@ -18,6 +32,7 @@ export default function AdminProjects() {
 
   // Modal and Form States
   const [showModal, setShowModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [editingItem, setEditingItem] = useState<CaseStudy | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -64,10 +79,7 @@ export default function AdminProjects() {
   }, []);
 
   const generateSlug = (val: string) => {
-    return val
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "");
+    return createSlug(val);
   };
 
   const handleTitleChange = (val: string) => {
@@ -162,29 +174,36 @@ export default function AdminProjects() {
       return;
     }
 
-    const data: Omit<CaseStudy, "id"> = {
-      title,
-      slug: slug.trim(),
-      industry,
-      clientName: clientName.trim() || undefined,
-      clientContext,
-      businessChallenge,
-      proposedSolution,
-      ankitRole,
-      timeSaved: timeSaved.trim() || undefined,
-      manualWorkReduction: manualWorkReduction.trim() || undefined,
-      dataAccuracyImprovement: dataAccuracyImprovement.trim() || undefined,
-      finalResult,
-      coverImageUrl: coverImageUrl.trim() || undefined,
-      featured,
-      published,
-      displayOrder: Number(displayOrder),
-      operationalGaps,
-      solutionModules,
-      technologies
-    };
-
     try {
+      const safeCoverImageUrl = coverImageUrl.trim()
+        ? await ensureFirestoreSafeImage(coverImageUrl)
+        : undefined;
+      const data: Omit<CaseStudy, "id"> = {
+        title,
+        slug: slug.trim(),
+        industry,
+        clientName: clientName.trim() || undefined,
+        clientContext,
+        businessChallenge,
+        proposedSolution,
+        ankitRole,
+        timeSaved: timeSaved.trim() || undefined,
+        manualWorkReduction: manualWorkReduction.trim() || undefined,
+        dataAccuracyImprovement: dataAccuracyImprovement.trim() || undefined,
+        finalResult,
+        coverImageUrl: safeCoverImageUrl,
+        featured,
+        published,
+        displayOrder: Number(displayOrder),
+        operationalGaps,
+        solutionModules,
+        technologies
+      };
+
+      if (safeCoverImageUrl && safeCoverImageUrl !== coverImageUrl) {
+        setCoverImageUrl(safeCoverImageUrl);
+      }
+
       if (editingItem) {
         await updateCaseStudy(editingItem.id, data);
         setMessage({ text: "Case study updated successfully!", type: "success" });
@@ -201,10 +220,65 @@ export default function AdminProjects() {
     }
   };
 
+  const handleBulkImport = async (records: BulkImportRecord[]) => {
+    const projects = await Promise.all(
+      records.map(async (record, index): Promise<Omit<CaseStudy, "id">> => {
+        requireFields(
+          record,
+          [
+            "title",
+            "industry",
+            "clientContext",
+            "businessChallenge",
+            "proposedSolution",
+            "ankitRole",
+            "finalResult"
+          ],
+          index + 2
+        );
+
+        const importedTitle = getString(record, "title");
+        const importedCoverImage = getString(record, "coverImageUrl");
+        return {
+          title: importedTitle,
+          slug: createSlug(getString(record, "slug") || importedTitle),
+          industry: getString(record, "industry"),
+          clientName: getString(record, "clientName") || undefined,
+          clientContext: getString(record, "clientContext"),
+          businessChallenge: getString(record, "businessChallenge"),
+          proposedSolution: getString(record, "proposedSolution"),
+          ankitRole: getString(record, "ankitRole"),
+          timeSaved: getString(record, "timeSaved") || undefined,
+          manualWorkReduction: getString(record, "manualWorkReduction") || undefined,
+          dataAccuracyImprovement: getString(record, "dataAccuracyImprovement") || undefined,
+          finalResult: getString(record, "finalResult"),
+          coverImageUrl: importedCoverImage
+            ? await ensureFirestoreSafeImage(importedCoverImage)
+            : undefined,
+          featured: getBoolean(record, "featured", false),
+          published: getBoolean(record, "published", true),
+          displayOrder: getNumber(record, "displayOrder", list.length + index + 1),
+          operationalGaps: getStringList(record, "operationalGaps"),
+          solutionModules: getStringList(record, "solutionModules"),
+          technologies: getStringList(record, "technologies")
+        };
+      })
+    );
+
+    const imported = await createCaseStudiesBulk(projects);
+    setMessage({ text: `${imported} case studies imported successfully!`, type: "success" });
+    await loadCaseStudies();
+    setTimeout(() => setMessage({ text: "", type: "success" }), 4000);
+    return imported;
+  };
+
   // Array item helpers
   const addGap = () => {
     if (!newGap.trim()) return;
-    setOperationalGaps([...operationalGaps, newGap.trim()]);
+    setOperationalGaps([
+      ...operationalGaps,
+      ...getStringList({ value: newGap }, "value")
+    ]);
     setNewGap("");
   };
   const removeGap = (index: number) => {
@@ -213,7 +287,10 @@ export default function AdminProjects() {
 
   const addModule = () => {
     if (!newModule.trim()) return;
-    setSolutionModules([...solutionModules, newModule.trim()]);
+    setSolutionModules([
+      ...solutionModules,
+      ...getStringList({ value: newModule }, "value")
+    ]);
     setNewModule("");
   };
   const removeModule = (index: number) => {
@@ -222,9 +299,11 @@ export default function AdminProjects() {
 
   const addTech = () => {
     if (!newTech.trim()) return;
-    if (!technologies.includes(newTech.trim())) {
-      setTechnologies([...technologies, newTech.trim()]);
-    }
+    const items = getStringList({ value: newTech }, "value");
+    setTechnologies([
+      ...technologies,
+      ...items.filter((item) => !technologies.includes(item))
+    ]);
     setNewTech("");
   };
   const removeTech = (tag: string) => {
@@ -252,13 +331,22 @@ export default function AdminProjects() {
             Publish, edit, or archive detailed custom software case studies and metrics
           </p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-1.5 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          Add Case Study
-        </button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <button
+            onClick={() => setShowBulkModal(true)}
+            className="flex items-center gap-1.5 border border-primary-black bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-primary-black transition-colors hover:bg-primary-black hover:text-white"
+          >
+            <Files className="w-4 h-4" />
+            Bulk Add
+          </button>
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-1.5 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Add Case Study
+          </button>
+        </div>
       </div>
 
       {message.text && (
@@ -427,8 +515,8 @@ export default function AdminProjects() {
               <div className="space-y-2">
                 <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold">Operational Gaps Identified</label>
                 <div className="flex gap-2">
-                  <input type="text" placeholder="Add gap..." value={newGap} onChange={(e) => setNewGap(e.target.value)} className="flex-grow border border-border-grey bg-main-bg py-2 px-4 text-xs font-light focus:outline-none" />
-                  <button type="button" onClick={addGap} className="bg-primary-black text-white px-4 py-2 text-xs uppercase font-semibold cursor-pointer">Add</button>
+                  <textarea rows={2} placeholder="Paste multiple gaps, one per line..." value={newGap} onChange={(e) => setNewGap(e.target.value)} className="flex-grow resize-none border border-border-grey bg-main-bg py-2 px-4 text-xs font-light focus:outline-none" />
+                  <button type="button" onClick={addGap} className="bg-primary-black text-white px-4 py-2 text-xs uppercase font-semibold cursor-pointer">Add Bulk</button>
                 </div>
                 <ul className="space-y-1.5 pt-2">
                   {operationalGaps.map((gap, i) => (
@@ -444,8 +532,8 @@ export default function AdminProjects() {
               <div className="space-y-2">
                 <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold">Solution Modules Built</label>
                 <div className="flex gap-2">
-                  <input type="text" placeholder="Add solution module..." value={newModule} onChange={(e) => setNewModule(e.target.value)} className="flex-grow border border-border-grey bg-main-bg py-2 px-4 text-xs font-light focus:outline-none" />
-                  <button type="button" onClick={addModule} className="bg-primary-black text-white px-4 py-2 text-xs uppercase font-semibold cursor-pointer">Add</button>
+                  <textarea rows={2} placeholder="Paste multiple modules, one per line..." value={newModule} onChange={(e) => setNewModule(e.target.value)} className="flex-grow resize-none border border-border-grey bg-main-bg py-2 px-4 text-xs font-light focus:outline-none" />
+                  <button type="button" onClick={addModule} className="bg-primary-black text-white px-4 py-2 text-xs uppercase font-semibold cursor-pointer">Add Bulk</button>
                 </div>
                 <ul className="space-y-1.5 pt-2">
                   {solutionModules.map((mod, i) => (
@@ -461,8 +549,8 @@ export default function AdminProjects() {
               <div className="space-y-2">
                 <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold">Technologies / Software Used</label>
                 <div className="flex gap-2">
-                  <input type="text" placeholder="Add tech..." value={newTech} onChange={(e) => setNewTech(e.target.value)} className="flex-grow border border-border-grey bg-main-bg py-2 px-4 text-xs font-light focus:outline-none" />
-                  <button type="button" onClick={addTech} className="bg-primary-black text-white px-4 py-2 text-xs uppercase font-semibold cursor-pointer">Add</button>
+                  <input type="text" placeholder="Add multiple technologies separated by comma..." value={newTech} onChange={(e) => setNewTech(e.target.value)} className="flex-grow border border-border-grey bg-main-bg py-2 px-4 text-xs font-light focus:outline-none" />
+                  <button type="button" onClick={addTech} className="bg-primary-black text-white px-4 py-2 text-xs uppercase font-semibold cursor-pointer">Add Bulk</button>
                 </div>
                 <div className="flex flex-wrap gap-1.5 pt-2">
                   {technologies.map((tag) => (
@@ -517,6 +605,56 @@ export default function AdminProjects() {
           </div>
         </div>
       )}
+
+      <BulkImportModal
+        open={showBulkModal}
+        title="Case Studies"
+        description="Upload a CSV/JSON file or paste multiple case studies. Required fields are validated before anything is written."
+        fields={[
+          "title",
+          "slug",
+          "industry",
+          "clientName",
+          "clientContext",
+          "businessChallenge",
+          "operationalGaps",
+          "proposedSolution",
+          "solutionModules",
+          "ankitRole",
+          "timeSaved",
+          "manualWorkReduction",
+          "dataAccuracyImprovement",
+          "finalResult",
+          "technologies",
+          "coverImageUrl",
+          "featured",
+          "published",
+          "displayOrder"
+        ]}
+        sample={{
+          title: "Healthcare Workflow Automation",
+          slug: "healthcare-workflow-automation",
+          industry: "Healthcare",
+          clientName: "Metro Care",
+          clientContext: "Multi-location clinic using manual registers.",
+          businessChallenge: "Patient and billing data was duplicated across teams.",
+          operationalGaps: "Duplicate entry | Delayed reporting",
+          proposedSolution: "A unified operations and billing workflow.",
+          solutionModules: "Patient intake | Billing | Reports",
+          ankitRole: "Discovery, process mapping and solution coordination.",
+          timeSaved: "40%",
+          manualWorkReduction: "60%",
+          dataAccuracyImprovement: "98%",
+          finalResult: "Faster operations with reliable reporting.",
+          technologies: "CRM | Automation | Reporting",
+          coverImageUrl: "",
+          featured: false,
+          published: true,
+          displayOrder: list.length + 1
+        }}
+        onClose={() => setShowBulkModal(false)}
+        onImport={handleBulkImport}
+      />
     </div>
   );
 }

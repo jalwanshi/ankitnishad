@@ -1,15 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Edit, X, Save, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Edit, X, Save, Eye, EyeOff, Files } from "lucide-react";
 import { BlogPost } from "@/types/portfolio";
-import { getAllBlogs, addBlog, updateBlog, deleteBlog } from "@/services/blogService";
+import { getAllBlogs, addBlog, addBlogsBulk, updateBlog, deleteBlog } from "@/services/blogService";
+import BulkImportModal from "@/components/admin/BulkImportModal";
+import {
+  BulkImportRecord,
+  createSlug,
+  getBoolean,
+  getString,
+  requireFields
+} from "@/lib/bulkImport";
 
 export default function AdminBlog() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [message, setMessage] = useState({ text: "", type: "success" });
 
   // Form State
   const [title, setTitle] = useState("");
@@ -19,10 +29,6 @@ export default function AdminBlog() {
   const [readingTime, setReadingTime] = useState("");
   const [category, setCategory] = useState("");
   const [published, setPublished] = useState(true);
-
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
 
   const fetchBlogs = async () => {
     try {
@@ -34,6 +40,10 @@ export default function AdminBlog() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
 
   const resetForm = () => {
     setTitle("");
@@ -60,10 +70,7 @@ export default function AdminBlog() {
   };
 
   const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "");
+    return createSlug(text);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -105,6 +112,34 @@ export default function AdminBlog() {
     }
   };
 
+  const handleBulkImport = async (records: BulkImportRecord[]) => {
+    const posts = records.map((record, index) => {
+      requireFields(
+        record,
+        ["title", "excerpt", "content", "date", "readingTime", "category"],
+        index + 2
+      );
+
+      const importedTitle = getString(record, "title");
+      return {
+        title: importedTitle,
+        slug: createSlug(getString(record, "slug") || importedTitle),
+        excerpt: getString(record, "excerpt"),
+        content: getString(record, "content"),
+        date: getString(record, "date"),
+        readingTime: getString(record, "readingTime"),
+        category: getString(record, "category"),
+        published: getBoolean(record, "published", true)
+      };
+    });
+
+    const imported = await addBlogsBulk(posts);
+    setMessage({ text: `${imported} blog articles imported successfully!`, type: "success" });
+    await fetchBlogs();
+    setTimeout(() => setMessage({ text: "", type: "success" }), 4000);
+    return imported;
+  };
+
   const togglePublish = async (post: BlogPost) => {
     try {
       await updateBlog(post.id, { published: !post.published });
@@ -134,14 +169,33 @@ export default function AdminBlog() {
             Write, edit, publish, or schedule thoughts and insights
           </p>
         </div>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-1 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Write Article
-        </button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <button
+            onClick={() => setShowBulkModal(true)}
+            className="flex items-center gap-1.5 border border-primary-black bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-primary-black transition-colors hover:bg-primary-black hover:text-white"
+          >
+            <Files className="w-4 h-4" />
+            Bulk Add
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-1 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Write Article
+          </button>
+        </div>
       </div>
+
+      {message.text && (
+        <div className={`border px-4 py-3 text-center text-xs font-light ${
+          message.type === "error"
+            ? "border-red-200 bg-red-50 text-red-600"
+            : "border-green-200 bg-green-50 text-green-700"
+        }`}>
+          {message.text}
+        </div>
+      )}
 
       {/* Grid of posts list */}
       <div className="space-y-4">
@@ -277,6 +331,34 @@ export default function AdminBlog() {
           </div>
         </div>
       )}
+
+      <BulkImportModal
+        open={showBulkModal}
+        title="Blog Articles"
+        description="Import multiple articles from CSV or JSON. Long article content can be placed inside a quoted CSV cell or supplied through JSON."
+        fields={[
+          "title",
+          "slug",
+          "excerpt",
+          "content",
+          "date",
+          "readingTime",
+          "category",
+          "published"
+        ]}
+        sample={{
+          title: "How to Map a Business Process",
+          slug: "how-to-map-a-business-process",
+          excerpt: "A practical guide to finding bottlenecks before choosing software.",
+          content: "Start with the current workflow, identify handoffs, and document repeated manual steps.",
+          date: "June 18, 2026",
+          readingTime: "5 min read",
+          category: "Business Automation",
+          published: true
+        }}
+        onClose={() => setShowBulkModal(false)}
+        onImport={handleBulkImport}
+      />
     </div>
   );
 }

@@ -34,8 +34,8 @@ const profileData = {
   fullName: "Ankit Nishad",
   roleTitle: "Business Development Manager",
   professionalTagline: "Helping Businesses Replace Manual Operations with Custom Software, Automation and Smarter Digital Systems.",
-  shortBio: "Ankit Nishad is a Business Development Manager and Business Automation Consultant who helps companies identify operational gaps and convert manual, disconnected processes into structured digital systems. He works closely with business owners and decision-makers to understand their workflows, recommend custom software solutions and coordinate the complete journey from discovery and requirement analysis to proposal and implementation planning.",
-  detailedBio: "Ankit Nishad is a Business Development Manager and Business Automation Consultant focused on helping businesses modernise their operations through custom software, process automation and integrated digital systems.\n\nHis work begins with understanding how a company currently manages its sales, operations, follow-ups, inventory, reporting, documents, communication and customer data. He identifies inefficiencies caused by disconnected tools such as spreadsheets, WhatsApp, emails, manual registers and multiple independent software platforms.\n\nBased on the organisation’s actual workflow, Ankit helps define practical software requirements and proposes tailored CRM, ERP, DMS, client portal, sales automation, inventory management, manufacturing management, healthcare management and workflow automation solutions.\n\nHe actively works across client discovery, process consultation, requirement gathering, workflow mapping, software demonstrations, proposal coordination and long-term follow-ups. His approach is focused on solving real operational problems instead of recommending generic, ready-made software.\n\nAnkit’s professional goal is to help growing businesses move from fragmented manual systems to organised, scalable and data-driven digital operations.",
+  shortBio: "Ankit Nishad is a Business Development Manager and Business Automation Consultant who helps growing businesses identify operational gaps and replace manual, disconnected processes with practical software, automation, and digital systems.",
+  detailedBio: "Ankit Nishad helps growing businesses replace scattered, manual operations with clear digital systems.\n\nHis work starts by understanding how teams manage sales, operations, follow-ups, inventory, reporting, documents, communication, and customer data today.\n\nHe identifies where spreadsheets, WhatsApp threads, emails, registers, and disconnected tools create delays or errors. From there, he turns real workflows into practical requirements for CRM, ERP, DMS, client portals, sales automation, inventory systems, and workflow automation.\n\nThe goal is simple: recommend the right system for the real problem, not generic software for every business.",
   email: "ankitnishad703@gmail.com",
   phone: "+91 6388353247",
   linkedinUrl: "https://www.linkedin.com/in/theankitnishad/",
@@ -49,7 +49,8 @@ const profileData = {
   seoDescription: "Ankit Nishad helps businesses replace manual workflows with custom software, CRM, ERP, business automation and integrated digital systems.",
   resumeUrl: "", // Start empty or default to /assets/resume.pdf
   heroImageUrl: "/assets/hero-portrait.png",
-  aboutImageUrl: "/assets/about-portrait.png"
+  aboutImageUrl: "/assets/about-portrait.png",
+  signatureImageUrl: "/assets/image.png"
 };
 
 const metricsData = {

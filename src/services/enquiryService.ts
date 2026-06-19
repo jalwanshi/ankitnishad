@@ -2,7 +2,6 @@ import {
   collection,
   doc,
   getDocs,
-  getDoc,
   addDoc,
   setDoc,
   deleteDoc,
@@ -12,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { ContactEnquiry } from "@/types/portfolio";
+import { addDocumentsInBatches } from "@/lib/firestoreBulk";
 
 const COLLECTION_NAME = "enquiries";
 
@@ -26,6 +26,12 @@ export async function createEnquiry(enquiry: Omit<ContactEnquiry, "id" | "status
     updatedAt: serverTimestamp()
   });
   return docRef.id;
+}
+
+export async function createEnquiriesBulk(
+  enquiries: Omit<ContactEnquiry, "id" | "createdAt" | "updatedAt">[]
+): Promise<number> {
+  return addDocumentsInBatches(COLLECTION_NAME, enquiries);
 }
 
 export async function getAllEnquiries(): Promise<ContactEnquiry[]> {

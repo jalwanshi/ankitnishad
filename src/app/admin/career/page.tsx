@@ -1,15 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Edit, Save, X, Eye, FileText, ToggleLeft, ToggleRight, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Trash2, Edit, X, Files } from "lucide-react";
 import {
   getAllCareerTimeline,
   createCareerMilestone,
+  createCareerMilestonesBulk,
   updateCareerMilestone,
   deleteCareerMilestone
 } from "@/services/careerService";
-import { uploadAsset } from "@/services/assetService";
+import {
+  ensureFirestoreSafeImage,
+  uploadAsset
+} from "@/services/assetService";
 import { CareerMilestone } from "@/types/portfolio";
+import BulkImportModal from "@/components/admin/BulkImportModal";
+import {
+  BulkImportRecord,
+  getBoolean,
+  getNumber,
+  getString,
+  getStringList,
+  requireFields
+} from "@/lib/bulkImport";
 
 export default function AdminCareer() {
   const [list, setList] = useState<CareerMilestone[]>([]);
@@ -18,6 +31,7 @@ export default function AdminCareer() {
 
   // Modal & Form States
   const [showModal, setShowModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [editingItem, setEditingItem] = useState<CareerMilestone | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
 
@@ -126,23 +140,31 @@ export default function AdminCareer() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data: Omit<CareerMilestone, "id"> = {
-      company,
-      designation,
-      startDate,
-      endDate: isCurrentRole ? "Present" : endDate,
-      isCurrentRole,
-      roleSummary,
-      responsibilities,
-      achievements,
-      skills,
-      tools,
-      companyLogoUrl,
-      displayOrder: Number(displayOrder),
-      published
-    };
 
     try {
+      const safeCompanyLogoUrl = companyLogoUrl.trim()
+        ? await ensureFirestoreSafeImage(companyLogoUrl)
+        : undefined;
+      const data: Omit<CareerMilestone, "id"> = {
+        company,
+        designation,
+        startDate,
+        endDate: isCurrentRole ? "Present" : endDate,
+        isCurrentRole,
+        roleSummary,
+        responsibilities,
+        achievements,
+        skills,
+        tools,
+        companyLogoUrl: safeCompanyLogoUrl,
+        displayOrder: Number(displayOrder),
+        published
+      };
+
+      if (safeCompanyLogoUrl && safeCompanyLogoUrl !== companyLogoUrl) {
+        setCompanyLogoUrl(safeCompanyLogoUrl);
+      }
+
       if (editingItem) {
         await updateCareerMilestone(editingItem.id, data);
         setMessage({ text: "Milestone updated successfully!", type: "success" });
@@ -157,6 +179,54 @@ export default function AdminCareer() {
       console.error(err);
       setMessage({ text: `Failed to save: ${err.message}`, type: "error" });
     }
+  };
+
+  const handleBulkImport = async (records: BulkImportRecord[]) => {
+    const milestones = await Promise.all(
+      records.map(async (record, index): Promise<Omit<CareerMilestone, "id">> => {
+        requireFields(
+          record,
+          ["company", "designation", "startDate", "roleSummary"],
+          index + 2
+        );
+
+        const rawEndDate = getString(record, "endDate");
+        const currentRole =
+          getBoolean(record, "isCurrentRole", false) ||
+          rawEndDate.toLowerCase() === "present";
+        const importedEndDate = currentRole ? "Present" : rawEndDate;
+        if (!importedEndDate) {
+          throw new Error(`Row ${index + 2}: missing endDate`);
+        }
+
+        const importedLogo = getString(record, "companyLogoUrl");
+        return {
+          company: getString(record, "company"),
+          designation: getString(record, "designation"),
+          startDate: getString(record, "startDate"),
+          endDate: importedEndDate,
+          isCurrentRole: currentRole,
+          roleSummary: getString(record, "roleSummary"),
+          responsibilities: getStringList(record, "responsibilities"),
+          achievements: getStringList(record, "achievements"),
+          skills: getStringList(record, "skills"),
+          tools: getStringList(record, "tools"),
+          location: getString(record, "location") || undefined,
+          workMode: getString(record, "workMode") || undefined,
+          companyLogoUrl: importedLogo
+            ? await ensureFirestoreSafeImage(importedLogo)
+            : undefined,
+          displayOrder: getNumber(record, "displayOrder", list.length + index + 1),
+          published: getBoolean(record, "published", true)
+        };
+      })
+    );
+
+    const imported = await createCareerMilestonesBulk(milestones);
+    setMessage({ text: `${imported} career milestones imported successfully!`, type: "success" });
+    await loadCareerTimeline();
+    setTimeout(() => setMessage({ text: "", type: "success" }), 4000);
+    return imported;
   };
 
   // Array management helpers (with Bulk / Multi-line support)
@@ -223,13 +293,22 @@ export default function AdminCareer() {
             Configure dynamic B2B job history, responsibilities, and key B2B achievements
           </p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-1.5 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          Add Milestone
-        </button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <button
+            onClick={() => setShowBulkModal(true)}
+            className="flex items-center gap-1.5 border border-primary-black bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-primary-black transition-colors hover:bg-primary-black hover:text-white"
+          >
+            <Files className="w-4 h-4" />
+            Bulk Add
+          </button>
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-1.5 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Add Milestone
+          </button>
+        </div>
       </div>
 
       {message.text && (
@@ -480,6 +559,48 @@ export default function AdminCareer() {
           </div>
         </div>
       )}
+
+      <BulkImportModal
+        open={showBulkModal}
+        title="Career Milestones"
+        description="Paste or upload your complete career history. Responsibilities, achievements, skills and tools support multiple values in one cell."
+        fields={[
+          "company",
+          "designation",
+          "startDate",
+          "endDate",
+          "isCurrentRole",
+          "roleSummary",
+          "responsibilities",
+          "achievements",
+          "skills",
+          "tools",
+          "location",
+          "workMode",
+          "companyLogoUrl",
+          "displayOrder",
+          "published"
+        ]}
+        sample={{
+          company: "Acme Systems",
+          designation: "Business Development Manager",
+          startDate: "January 2024",
+          endDate: "Present",
+          isCurrentRole: true,
+          roleSummary: "Led discovery and solution consulting for automation projects.",
+          responsibilities: "Client discovery | Proposal coordination | Process mapping",
+          achievements: "Improved conversions by 25% | Closed 20 enterprise opportunities",
+          skills: "B2B Sales | Solution Consulting",
+          tools: "HubSpot | Salesforce",
+          location: "Noida, India",
+          workMode: "Hybrid",
+          companyLogoUrl: "",
+          displayOrder: list.length + 1,
+          published: true
+        }}
+        onClose={() => setShowBulkModal(false)}
+        onImport={handleBulkImport}
+      />
     </div>
   );
 }

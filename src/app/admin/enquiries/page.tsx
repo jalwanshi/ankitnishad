@@ -1,14 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Mail, Phone, Calendar, Trash2, ArrowUpRight, Check, FileSpreadsheet } from "lucide-react";
+import { Search, Mail, Phone, Trash2, ArrowUpRight, FileSpreadsheet, Files } from "lucide-react";
 import {
+  createEnquiriesBulk,
   getAllEnquiries,
   updateEnquiryStatus,
   updateEnquiryNotes,
   deleteEnquiry
 } from "@/services/enquiryService";
 import { ContactEnquiry } from "@/types/portfolio";
+import BulkImportModal from "@/components/admin/BulkImportModal";
+import {
+  BulkImportRecord,
+  getString,
+  requireFields
+} from "@/lib/bulkImport";
 
 export default function AdminEnquiries() {
   const [enquiries, setEnquiries] = useState<ContactEnquiry[]>([]);
@@ -17,6 +24,7 @@ export default function AdminEnquiries() {
   const [activeStatus, setActiveStatus] = useState<string>("All");
   const [noteText, setNoteText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "success" });
 
   const loadEnquiries = async () => {
@@ -145,6 +153,55 @@ export default function AdminEnquiries() {
     document.body.removeChild(link);
   };
 
+  const handleBulkImport = async (records: BulkImportRecord[]) => {
+    const validStatuses: ContactEnquiry["status"][] = [
+      "new",
+      "contacted",
+      "qualified",
+      "closed"
+    ];
+
+    const importedEnquiries = records.map(
+      (record, index): Omit<ContactEnquiry, "id" | "createdAt" | "updatedAt"> => {
+        requireFields(
+          record,
+          ["fullName", "companyName", "email", "phone", "challenge", "serviceRequired"],
+          index + 2
+        );
+
+        const requestedStatus = getString(record, "status").toLowerCase() as ContactEnquiry["status"];
+        return {
+          fullName: getString(record, "fullName"),
+          companyName: getString(record, "companyName"),
+          designation: getString(record, "designation") || undefined,
+          email: getString(record, "email"),
+          phone: getString(record, "phone"),
+          linkedinUrl: getString(record, "linkedinUrl") || undefined,
+          website: getString(record, "website") || undefined,
+          industry: getString(record, "industry") || undefined,
+          companySize: getString(record, "companySize") || undefined,
+          currentTools: getString(record, "currentTools") || undefined,
+          currentProcess: getString(record, "currentProcess") || undefined,
+          challenge: getString(record, "challenge"),
+          serviceRequired: getString(record, "serviceRequired"),
+          budget: getString(record, "budget") || undefined,
+          timeline: getString(record, "timeline") || undefined,
+          preferredDate: getString(record, "preferredDate") || undefined,
+          preferredTime: getString(record, "preferredTime") || undefined,
+          status: validStatuses.includes(requestedStatus) ? requestedStatus : "new",
+          source: "portfolio",
+          notes: getString(record, "notes")
+        };
+      }
+    );
+
+    const imported = await createEnquiriesBulk(importedEnquiries);
+    setMessage({ text: `${imported} enquiries imported successfully!`, type: "success" });
+    await loadEnquiries();
+    setTimeout(() => setMessage({ text: "", type: "success" }), 4000);
+    return imported;
+  };
+
   const getFormatDate = (timestamp: any) => {
     if (!timestamp) return "—";
     if (timestamp.toDate) {
@@ -189,14 +246,23 @@ export default function AdminEnquiries() {
             Review, qualify, and track business lead entries
           </p>
         </div>
-        <button
-          onClick={handleExportCSV}
-          disabled={filteredEnquiries.length === 0}
-          className="flex items-center gap-1.5 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <FileSpreadsheet className="w-4 h-4" />
-          Export to CSV
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setShowBulkModal(true)}
+            className="flex items-center gap-1.5 border border-primary-black bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-primary-black transition-colors hover:bg-primary-black hover:text-white"
+          >
+            <Files className="w-4 h-4" />
+            Bulk Add
+          </button>
+          <button
+            onClick={handleExportCSV}
+            disabled={filteredEnquiries.length === 0}
+            className="flex items-center gap-1.5 bg-primary-black text-white hover:bg-white hover:text-primary-black border border-primary-black px-4 py-2.5 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Export to CSV
+          </button>
+        </div>
       </div>
 
       {message.text && (
@@ -388,6 +454,56 @@ export default function AdminEnquiries() {
           )}
         </div>
       </div>
+
+      <BulkImportModal
+        open={showBulkModal}
+        title="Enquiries"
+        description="Import leads collected from spreadsheets, events or another CRM. Missing status values are saved as new."
+        fields={[
+          "fullName",
+          "companyName",
+          "designation",
+          "email",
+          "phone",
+          "linkedinUrl",
+          "website",
+          "industry",
+          "companySize",
+          "currentTools",
+          "currentProcess",
+          "challenge",
+          "serviceRequired",
+          "budget",
+          "timeline",
+          "preferredDate",
+          "preferredTime",
+          "status",
+          "notes"
+        ]}
+        sample={{
+          fullName: "Ravi Sharma",
+          companyName: "Acme Manufacturing",
+          designation: "Operations Head",
+          email: "ravi@example.com",
+          phone: "+91 99999 99999",
+          linkedinUrl: "",
+          website: "https://example.com",
+          industry: "Manufacturing",
+          companySize: "51-200",
+          currentTools: "Excel | WhatsApp",
+          currentProcess: "Manual production and inventory updates",
+          challenge: "No real-time visibility across departments.",
+          serviceRequired: "ERP Consultation",
+          budget: "",
+          timeline: "3-6 months",
+          preferredDate: "",
+          preferredTime: "",
+          status: "new",
+          notes: "Imported from event lead sheet."
+        }}
+        onClose={() => setShowBulkModal(false)}
+        onImport={handleBulkImport}
+      />
     </div>
   );
 }
