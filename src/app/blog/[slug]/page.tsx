@@ -105,8 +105,8 @@ export default function BlogArticle({ params }: PageProps) {
           </p>
 
           {/* Content Body */}
-          <div className="space-y-6 text-dark-grey text-sm md:text-base font-light leading-relaxed border-t border-border-grey pt-12 mb-16 whitespace-pre-wrap">
-            {post.content}
+          <div className="space-y-6 text-dark-grey text-sm md:text-base font-light leading-relaxed border-t border-border-grey pt-12 mb-16">
+            {parseMarkdown(post.content || "")}
           </div>
 
           {/* Sharing Actions */}
@@ -152,4 +152,128 @@ export default function BlogArticle({ params }: PageProps) {
       </div>
     </div>
   );
+}
+
+function parseInline(text: string): React.ReactNode[] {
+  const regex = /(\*\*.*?\*\*|\*.*?\*)/g;
+  const parts = text.split(regex);
+
+  return parts.map((part, idx) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={idx} className="font-semibold text-primary-black">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith("*") && part.endsWith("*")) {
+      return (
+        <em key={idx} className="italic text-primary-black">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    return part;
+  });
+}
+
+function parseMarkdown(text: string): React.ReactNode[] {
+  if (!text) return [];
+
+  const lines = text.split(/\r?\n/);
+  const elements: React.ReactNode[] = [];
+  
+  let currentListType: "bullet" | "ordered" | null = null;
+  let currentListItems: React.ReactNode[] = [];
+
+  const flushList = (key: string | number) => {
+    if (currentListItems.length > 0) {
+      if (currentListType === "bullet") {
+        elements.push(
+          <ul key={`ul-${key}`} className="list-disc pl-6 space-y-2 text-dark-grey">
+            {currentListItems}
+          </ul>
+        );
+      } else if (currentListType === "ordered") {
+        elements.push(
+          <ol key={`ol-${key}`} className="list-decimal pl-6 space-y-2 text-dark-grey">
+            {currentListItems}
+          </ol>
+        );
+      }
+      currentListItems = [];
+      currentListType = null;
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Check if line is list item
+    const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("* ");
+    const isOrdered = /^\d+\.\s/.test(trimmed);
+    
+    if (isBullet) {
+      if (currentListType === "ordered") {
+        flushList(i);
+      }
+      currentListType = "bullet";
+      
+      const content = trimmed.slice(2);
+      currentListItems.push(
+        <li key={`li-${i}`} className="text-dark-grey text-sm md:text-base font-light leading-relaxed">
+          {parseInline(content)}
+        </li>
+      );
+    } else if (isOrdered) {
+      if (currentListType === "bullet") {
+        flushList(i);
+      }
+      currentListType = "ordered";
+      
+      const match = trimmed.match(/^\d+\.\s/);
+      const prefixLength = match ? match[0].length : 3;
+      const content = trimmed.slice(prefixLength);
+      currentListItems.push(
+        <li key={`li-${i}`} className="text-dark-grey text-sm md:text-base font-light leading-relaxed">
+          {parseInline(content)}
+        </li>
+      );
+    } else if (trimmed.startsWith("### ")) {
+      flushList(i);
+      elements.push(
+        <h3 key={`h3-${i}`} className="font-display text-lg md:text-xl font-normal text-primary-black uppercase tracking-wide mt-6 mb-2">
+          {parseInline(trimmed.slice(4))}
+        </h3>
+      );
+    } else if (trimmed.startsWith("## ")) {
+      flushList(i);
+      elements.push(
+        <h2 key={`h2-${i}`} className="font-display text-xl md:text-2xl font-light text-primary-black uppercase tracking-wider mt-8 mb-3">
+          {parseInline(trimmed.slice(3))}
+        </h2>
+      );
+    } else if (trimmed.startsWith("# ")) {
+      flushList(i);
+      elements.push(
+        <h1 key={`h1-${i}`} className="font-display text-2xl md:text-3xl font-light text-primary-black uppercase tracking-widest mt-10 mb-4">
+          {parseInline(trimmed.slice(2))}
+        </h1>
+      );
+    } else if (trimmed === "") {
+      flushList(i);
+    } else {
+      flushList(i);
+      elements.push(
+        <p key={`p-${i}`} className="text-dark-grey text-sm md:text-base font-light leading-relaxed">
+          {parseInline(trimmed)}
+        </p>
+      );
+    }
+  }
+
+  flushList("end");
+
+  return elements;
 }

@@ -183,10 +183,10 @@ export default function CaseStudy({ params }: PageProps) {
               </p>
             </div>
 
-            {/* Ankit's specific role in the project */}
+            {/* My specific role in the project */}
             <div className="bg-white border border-primary-black p-8 relative">
               <span className="absolute -top-3 left-6 bg-primary-black text-white text-[9px] uppercase tracking-widest px-3 py-1 font-semibold">
-                Ankit's Contribution
+                My Contribution
               </span>
               <h4 className="font-display text-lg font-normal text-primary-black mb-3">
                 Discovery & Solution Coordination

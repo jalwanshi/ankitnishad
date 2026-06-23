@@ -3,7 +3,10 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Check if the request is from an authenticated admin user
     function isAdmin() {
-      return request.auth != null && exists(/databases/$(database)/documents/adminUsers/$(request.auth.uid));
+      return request.auth != null && (
+        exists(/databases/$(database)/documents/adminUsers/$(request.auth.uid)) ||
+        request.auth.token.email == 'ankitnishad703@gmail.com'
+      );
     }
 
     // Public collections (read-only for public, write for admin)
@@ -51,9 +54,20 @@ service cloud.firestore {
     match /followUps/{document} {
       allow read, write: if isAdmin(); // only admin has access
     }
+
+    match /subscribers/{emailId} {
+      allow create, update: if true; // anyone can subscribe
+      allow read, delete: if isAdmin(); // only admin can view/manage
+    }
     
     match /adminUsers/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if isAdmin();
+    }
+    
+    match /adminSecurity/{docId} {
+      allow get: if true;
+      allow list: if isAdmin();
       allow write: if isAdmin();
     }
   }

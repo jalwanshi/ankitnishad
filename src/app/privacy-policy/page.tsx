@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-
+import { ArrowLeft, ShieldCheck, Scale, AlertOctagon } from "lucide-react";
 
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-main-bg py-20 relative overflow-hidden">
+      {/* BACKGROUND monogram */}
       <div className="absolute right-[-100px] top-10 font-display font-black text-primary-black/[0.01] text-[30rem] md:text-[50rem] leading-none select-none pointer-events-none z-0">
         AN
       </div>
@@ -20,56 +20,92 @@ export default function PrivacyPolicy() {
         </Link>
 
         {/* Content Box */}
-        <div className="max-w-[800px] mx-auto bg-white border border-border-grey p-8 md:p-12">
-          <h1 className="font-display text-3xl font-light text-primary-black mb-8 border-b border-border-grey pb-4">
-            Privacy Policy
-          </h1>
+        <div className="max-w-[900px] mx-auto bg-white border border-border-grey p-8 md:p-16 rounded-2xl shadow-xs space-y-12">
+          {/* Header */}
+          <div className="border-b border-border-grey pb-6">
+            <span className="text-[10px] uppercase tracking-widest font-bold text-primary-black flex items-center gap-1.5 mb-2">
+              <ShieldCheck className="w-4 h-4" /> Legal Department
+            </span>
+            <h1 className="font-display text-3xl md:text-4xl font-light text-primary-black uppercase tracking-wider">
+              Privacy Policy & Terms of Service
+            </h1>
+            <p className="text-[10px] uppercase tracking-widest text-muted-grey mt-1">
+              Effective Date: June 2026 • Official Document ID: AN-PL-2026-V1
+            </p>
+          </div>
 
-          <div className="space-y-6 text-xs md:text-sm text-dark-grey font-light leading-relaxed">
-            <p>
-              Last Updated: June 11, 2026
-            </p>
-            <p>
-              This Privacy Policy describes how your personal information is collected, used, and shared when you visit my portfolio website and submit consulting discovery questionnaires.
-            </p>
-            <h3 className="font-display text-base uppercase tracking-wider text-primary-black font-semibold mt-8">
-              1. Information I Collect
-            </h3>
-            <p>
-              When you submit a discovery questionnaire through the contact form, I collect the personal data you explicitly provide: your full name, company name, work email address, phone number, LinkedIn profile link, company website, industry, and descriptions of your workflow challenges.
-            </p>
-            <h3 className="font-display text-base uppercase tracking-wider text-primary-black font-semibold mt-8">
-              2. How I Use Your Information
-            </h3>
-            <p>
-              I use the collected data solely to:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Analyze your company's operational workflow challenges before our discovery call.</li>
-              <li>Reach out to schedule and conduct consultation sessions.</li>
-              <li>Coordinate requirement specifications if we enter into a business relationship.</li>
-            </ul>
-            <p>
-              Your personal details are treated with strict confidentiality and are never shared with, sold to, or distributed to third-party marketing networks.
-            </p>
-            <h3 className="font-display text-base uppercase tracking-wider text-primary-black font-semibold mt-8">
-              3. Data Retention and Safety
-            </h3>
-            <p>
-              I maintain contact form submissions in a secure cloud database (Firestore). Access is restricted exclusively to authenticated administrators with Super Admin roles. We apply strict security rules to prevent unauthorized reads.
-            </p>
-            <h3 className="font-display text-base uppercase tracking-wider text-primary-black font-semibold mt-8">
-              4. Contact Consent
-            </h3>
-            <p>
-              By checking the form boxes or submitting inquiries, you consent to receiving follow-up business emails or calls from me regarding your workflow consultation request.
-            </p>
-            <h3 className="font-display text-base uppercase tracking-wider text-primary-black font-semibold mt-8">
-              5. Contact Me
-            </h3>
-            <p>
-              If you have any questions regarding this privacy notice, please reach out directly via email at: <strong>ankitnishad703@gmail.com</strong>.
-            </p>
+          <div className="space-y-8 text-xs md:text-sm text-dark-grey font-light leading-relaxed">
+            
+            {/* Introductory Notice */}
+            <div className="bg-soft-bg p-6 border border-border-grey rounded-xl flex items-start gap-4">
+              <Scale className="w-8 h-8 text-primary-black shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-primary-black uppercase tracking-wider mb-1">
+                  Professional Agreement
+                </p>
+                <p className="text-[11px] text-dark-grey">
+                  This document governs the access and usage terms of this portfolio website. By visiting this site or submitting information, you agree to the terms specified herein. All interactions are treated with the utmost professional confidentiality.
+                </p>
+              </div>
+            </div>
+
+            {/* Section 1 */}
+            <div className="space-y-3">
+              <h3 className="font-display text-base uppercase tracking-wider text-primary-black font-semibold flex items-center gap-1.5 mt-8 border-b border-border-grey/50 pb-2">
+                1. Data Privacy & Confidentiality
+              </h3>
+              <p>
+                Any information submitted through contact forms, newsletters, or diagnostic calculators is securely stored and used strictly for the purpose of fulfilling your request, providing consultations, and sharing relevant insights. We never sell, rent, or distribute your personal data to third parties.
+              </p>
+              <p>
+                Your privacy is of paramount importance, and industry-standard security measures are implemented to protect all correspondence and proprietary details you share.
+              </p>
+            </div>
+
+            {/* Section 2 */}
+            <div className="space-y-3">
+              <h3 className="font-display text-base uppercase tracking-wider text-primary-black font-semibold flex items-center gap-1.5 mt-8 border-b border-border-grey/50 pb-2">
+                2. Intellectual Property
+              </h3>
+              <p>
+                The content, design, code, and case studies showcased on this portfolio are the intellectual property of Ankit Nishad, unless otherwise stated. Unauthorized reproduction, scraping, or commercial use of this website's assets without prior written consent is prohibited.
+              </p>
+            </div>
+
+            {/* Section 3 */}
+            <div className="space-y-3">
+              <h3 className="font-display text-base uppercase tracking-wider text-primary-black font-semibold flex items-center gap-1.5 mt-8 border-b border-border-grey/50 pb-2">
+                3. Disclaimer
+              </h3>
+              <p>
+                The automated estimates generated by any calculators on this site are projections based on industry standards. They serve as a baseline for discussion and do not constitute formal binding financial advisories or guaranteed outcomes.
+              </p>
+            </div>
+
+            {/* Sign-off & Official Seal stamp */}
+            <div className="pt-12 border-t border-border-grey mt-12 flex flex-col md:flex-row justify-between items-center gap-8">
+              <div className="space-y-2 text-center md:text-left">
+                <p className="text-xs text-muted-grey">
+                  For legal inquiries, terms compliance, or written requests, please contact:
+                </p>
+                <p className="font-semibold text-primary-black">
+                  ankitnishad703@gmail.com
+                </p>
+                <p className="text-[10px] text-muted-grey uppercase tracking-widest font-semibold mt-4">
+                  Authorized Signatory: Ankit Nishad
+                </p>
+              </div>
+
+              {/* Official Stamp image */}
+              <div className="shrink-0 relative">
+                <img 
+                  src="/assets/offical%20stamp.png" 
+                  alt="Authorized Signature Stamp Seal" 
+                  className="w-40 h-40 md:w-48 md:h-48 object-contain mix-blend-multiply opacity-90"
+                />
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

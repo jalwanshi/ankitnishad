@@ -53,6 +53,10 @@ export default function AdminProjects() {
   const [featured, setFeatured] = useState(false);
   const [published, setPublished] = useState(true);
   const [displayOrder, setDisplayOrder] = useState(1);
+  const [year, setYear] = useState("");
+  const [timeline, setTimeline] = useState("");
+  const [projectType, setProjectType] = useState("");
+  const [status, setStatus] = useState("Completed");
 
   // Dynamic Array Fields
   const [operationalGaps, setOperationalGaps] = useState<string[]>([]);
@@ -110,6 +114,10 @@ export default function AdminProjects() {
     setOperationalGaps([]);
     setSolutionModules([]);
     setTechnologies([]);
+    setYear("");
+    setTimeline("");
+    setProjectType("");
+    setStatus("Completed");
     setShowModal(true);
   };
 
@@ -134,6 +142,10 @@ export default function AdminProjects() {
     setOperationalGaps(item.operationalGaps || []);
     setSolutionModules(item.solutionModules || []);
     setTechnologies(item.technologies || []);
+    setYear(item.year || "");
+    setTimeline(item.timeline || "");
+    setProjectType(item.projectType || "");
+    setStatus(item.status || "Completed");
     setShowModal(true);
   };
 
@@ -197,7 +209,11 @@ export default function AdminProjects() {
         displayOrder: Number(displayOrder),
         operationalGaps,
         solutionModules,
-        technologies
+        technologies,
+        year: year.trim() || undefined,
+        timeline: timeline.trim() || undefined,
+        projectType: projectType.trim() || undefined,
+        status: status.trim() || "Completed"
       };
 
       if (safeCoverImageUrl && safeCoverImageUrl !== coverImageUrl) {
@@ -260,7 +276,11 @@ export default function AdminProjects() {
           displayOrder: getNumber(record, "displayOrder", list.length + index + 1),
           operationalGaps: getStringList(record, "operationalGaps"),
           solutionModules: getStringList(record, "solutionModules"),
-          technologies: getStringList(record, "technologies")
+          technologies: getStringList(record, "technologies"),
+          year: getString(record, "year") || undefined,
+          timeline: getString(record, "timeline") || undefined,
+          projectType: getString(record, "projectType") || undefined,
+          status: getString(record, "status") || "Completed"
         };
       })
     );
@@ -467,6 +487,29 @@ export default function AdminProjects() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="flex flex-col">
+                  <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">Project Year (e.g. 2024)</label>
+                  <input type="text" placeholder="e.g. 2024" value={year} onChange={(e) => setYear(e.target.value)} className="border border-border-grey bg-main-bg py-2.5 px-4 text-xs font-light focus:outline-none" />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">Timeline / Month (e.g. 3 Months)</label>
+                  <input type="text" placeholder="e.g. 3 Months" value={timeline} onChange={(e) => setTimeline(e.target.value)} className="border border-border-grey bg-main-bg py-2.5 px-4 text-xs font-light focus:outline-none" />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">Project Type</label>
+                  <input type="text" placeholder="e.g. Automation & Custom ERP" value={projectType} onChange={(e) => setProjectType(e.target.value)} className="border border-border-grey bg-main-bg py-2.5 px-4 text-xs font-light focus:outline-none" />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">Project Status</label>
+                  <select value={status} onChange={(e) => setStatus(e.target.value)} className="border border-border-grey bg-main-bg py-2.5 px-4 text-xs font-light focus:outline-none">
+                    <option value="Completed">Completed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="On Hold">On Hold</option>
+                  </select>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="flex flex-col">
                   <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">Display Order *</label>
@@ -629,7 +672,11 @@ export default function AdminProjects() {
           "coverImageUrl",
           "featured",
           "published",
-          "displayOrder"
+          "displayOrder",
+          "year",
+          "timeline",
+          "projectType",
+          "status"
         ]}
         sample={{
           title: "Healthcare Workflow Automation",
@@ -650,7 +697,11 @@ export default function AdminProjects() {
           coverImageUrl: "",
           featured: false,
           published: true,
-          displayOrder: list.length + 1
+          displayOrder: list.length + 1,
+          year: "2024",
+          timeline: "4 Months",
+          projectType: "Automation & Custom ERP",
+          status: "Completed"
         }}
         onClose={() => setShowBulkModal(false)}
         onImport={handleBulkImport}

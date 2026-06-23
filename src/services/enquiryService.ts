@@ -25,6 +25,20 @@ export async function createEnquiry(enquiry: Omit<ContactEnquiry, "id" | "status
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
+
+  // Asynchronously trigger Telegram alert notification via secure Route Handler
+  try {
+    fetch("/api/notify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(enquiry)
+    }).catch((err) => console.error("Telegram notification failed:", err));
+  } catch (err) {
+    console.error("Async notify fetch error:", err);
+  }
+
   return docRef.id;
 }
 

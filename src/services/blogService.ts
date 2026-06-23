@@ -24,10 +24,14 @@ export const getAllBlogs = async (): Promise<BlogPost[]> => {
     querySnapshot.forEach((docSnap) => {
       posts.push({ id: docSnap.id, ...docSnap.data() } as BlogPost);
     });
-    // Sort in-memory by date (descending, assuming dates are formatted parsably or just string sorted. We'll rely on creation time for reliable sorting)
+    // Sort in-memory by date (descending, using Firebase timestamp or parsing manual date strings)
     return posts.sort((a, b) => {
-      const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-      const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+      const timeA = a.createdAt?.toMillis 
+        ? a.createdAt.toMillis() 
+        : (a.date ? Date.parse(a.date) : 0);
+      const timeB = b.createdAt?.toMillis 
+        ? b.createdAt.toMillis() 
+        : (b.date ? Date.parse(b.date) : 0);
       return timeB - timeA;
     });
   } catch (error) {
@@ -46,10 +50,14 @@ export const getPublishedBlogs = async (): Promise<BlogPost[]> => {
       querySnapshot.forEach((docSnap) => {
         posts.push({ id: docSnap.id, ...docSnap.data() } as BlogPost);
       });
-      // Sort in-memory by date (descending)
+      // Sort in-memory by date (descending, using Firebase timestamp or parsing manual date strings)
       return posts.sort((a, b) => {
-        const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-        const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+        const timeA = a.createdAt?.toMillis 
+          ? a.createdAt.toMillis() 
+          : (a.date ? Date.parse(a.date) : 0);
+        const timeB = b.createdAt?.toMillis 
+          ? b.createdAt.toMillis() 
+          : (b.date ? Date.parse(b.date) : 0);
         return timeB - timeA;
       });
     } catch (error) {

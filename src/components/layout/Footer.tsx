@@ -5,10 +5,16 @@ import Link from "next/link";
 import { ArrowUpRight, Mail, Phone } from "lucide-react";
 import { LinkedinIcon } from "@/components/ui/SocialIcons";
 import { getProfile } from "@/services/profileService";
+import { addSubscriber } from "@/services/subscriberService";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [profile, setProfile] = useState<any>({ fullName: "Ankit Nishad", roleTitle: "", email: "", phone: "", linkedinUrl: "" });
+
+  // Newsletter state
+  const [subscriberEmail, setSubscriberEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribeMsg, setSubscribeMsg] = useState({ text: "", type: "success" });
 
   useEffect(() => {
     async function loadFooterData() {
@@ -24,6 +30,24 @@ export default function Footer() {
     loadFooterData();
   }, []);
 
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subscriberEmail.trim()) return;
+    setSubscribing(true);
+    setSubscribeMsg({ text: "", type: "success" });
+
+    try {
+      await addSubscriber(subscriberEmail.trim());
+      setSubscribeMsg({ text: "Subscribed successfully!", type: "success" });
+      setSubscriberEmail("");
+      setTimeout(() => setSubscribeMsg({ text: "", type: "success" }), 4000);
+    } catch (err: any) {
+      setSubscribeMsg({ text: err.message || "Failed to subscribe.", type: "error" });
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
   return (
     <footer className="bg-footer-bg text-[#D1D1D1] relative overflow-hidden pt-24 pb-12 border-t border-border-grey/10">
       {/* Background Watermark "AN" */}
@@ -32,18 +56,56 @@ export default function Footer() {
       </div>
 
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24 relative z-10">
-        {/* Oversized text section */}
-        <div className="max-w-[900px] mb-20">
-          <p className="font-display font-light text-3xl md:text-5xl lg:text-6xl text-white leading-tight mb-8">
-            Let's turn your business challenge into the right opportunity.
-          </p>
-          <Link
-            href="/contact"
-            className="group inline-flex items-center gap-2 bg-white text-primary-black hover:bg-transparent hover:text-white border border-white px-6 py-4 text-xs font-sans uppercase tracking-widest transition-all duration-300 font-semibold"
-          >
-            Let's Discuss Your Project
-            <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </Link>
+        
+        {/* Call to action & Newsletter Dual Column Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20 items-start">
+          {/* Left Column: Call-to-action text and button */}
+          <div className="lg:col-span-7 space-y-8">
+            <p className="font-display font-light text-3xl md:text-5xl lg:text-6xl text-white leading-tight">
+              Let's turn your business challenge into the right opportunity.
+            </p>
+            <Link
+              href="/contact"
+              className="group inline-flex items-center gap-2 bg-white text-primary-black hover:bg-transparent hover:text-white border border-white px-6 py-4 text-xs font-sans uppercase tracking-widest transition-all duration-300 font-semibold"
+            >
+              Let's Discuss Your Project
+              <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </Link>
+          </div>
+
+          {/* Right Column: Newsletter Subscription Box */}
+          <div className="lg:col-span-5 bg-[#171717]/80 border border-border-grey/10 p-6 md:p-8 rounded-2xl space-y-4 max-w-md lg:ml-auto w-full">
+            <span className="text-[10px] font-sans uppercase tracking-[0.2em] font-bold text-white flex items-center gap-1.5">
+              Subscribe to Insights
+            </span>
+            <p className="text-[11px] text-[#A3A3A3] leading-relaxed">
+              Get email newsletters on operational diagnostics, business automation blueprints, and workflow roadmaps. No spam.
+            </p>
+            <form onSubmit={handleSubscribe} className="space-y-3">
+              <input
+                type="email"
+                required
+                placeholder="Enter your email address..."
+                value={subscriberEmail}
+                onChange={(e) => setSubscriberEmail(e.target.value)}
+                className="w-full bg-[#262626] border border-border-grey/10 text-xs py-3.5 px-4 text-white placeholder-[#737373] focus:outline-none focus:border-white transition-colors font-light rounded-lg"
+              />
+              <button
+                type="submit"
+                disabled={subscribing}
+                className="w-full bg-white text-primary-black hover:bg-transparent hover:text-white border border-white py-3.5 text-xs font-sans uppercase tracking-widest transition-all duration-300 font-semibold cursor-pointer disabled:opacity-50 rounded-lg"
+              >
+                {subscribing ? "Subscribing..." : "Subscribe"}
+              </button>
+              {subscribeMsg.text && (
+                <p className={`text-[10px] mt-2 font-medium ${
+                  subscribeMsg.type === "error" ? "text-red-400" : "text-green-400"
+                }`}>
+                  {subscribeMsg.text}
+                </p>
+              )}
+            </form>
+          </div>
         </div>
 
         <hr className="border-border-grey/10 mb-16" />

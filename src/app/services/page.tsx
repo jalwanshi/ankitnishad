@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, Plus, Minus, ArrowRight } from "lucide-react";
 import { servicesData } from "@/constants/portfolioData";
 import { getProfile } from "@/services/profileService";
+import RoiCalculator from "@/components/widgets/RoiCalculator";
 
 export default function Services() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
@@ -213,6 +214,11 @@ export default function Services() {
               </div>
             );
           })}
+        </div>
+
+        {/* ROI Calculator Section */}
+        <div className="mt-28">
+          <RoiCalculator />
         </div>
 
         {/* Final CTA Contact */}

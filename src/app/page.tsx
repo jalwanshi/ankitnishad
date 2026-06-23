@@ -13,7 +13,7 @@ import { CareerMilestone, CaseStudy } from "@/types/portfolio";
 import CaseStudyCard from "@/components/work/CaseStudyCard";
 
 const philosophyFallback =
-  "Ankit Nishad helps growing businesses replace scattered, manual operations with clear digital systems.\n\nHis work starts by understanding how teams manage sales, operations, follow-ups, inventory, reporting, documents, communication, and customer data today.\n\nHe identifies where spreadsheets, WhatsApp threads, emails, registers, and disconnected tools create delays or errors. From there, he turns real workflows into practical requirements for CRM, ERP, DMS, client portals, sales automation, inventory systems, and workflow automation.\n\nThe goal is simple: recommend the right system for the real problem, not generic software for every business.";
+  "I help growing businesses replace scattered, manual operations with clear digital systems.\n\nMy work starts by understanding how teams manage sales, operations, follow-ups, inventory, reporting, documents, communication, and customer data today.\n\nI identify where spreadsheets, WhatsApp threads, emails, registers, and disconnected tools create delays or errors. From there, I turn real workflows into practical requirements for CRM, ERP, DMS, client portals, sales automation, inventory systems, and workflow automation.\n\nThe goal is simple: recommend the right system for the real problem, not generic software for every business.";
 
 const philosophyPrinciples = [
   {
@@ -138,7 +138,7 @@ export default function Home() {
         <div className="block md:hidden relative pt-[140px] px-6 pb-12 w-full overflow-hidden min-h-[105vh]">
           
           {/* Background Gradient/White matching mockup */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white via-[#FCFCFA] to-[#FCFCFA] z-[-2]"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-white via-main-bg to-main-bg z-[-2]"></div>
 
           {/* Portrait Image tightly aligned to the right edge */}
           <div className="absolute right-[-6%] top-[78px] w-[100%] min-[375px]:w-[105%] max-w-[380px] aspect-[3/4] z-0 pointer-events-none">
@@ -151,8 +151,8 @@ export default function Home() {
               priority
             />
             {/* Fading the bottom and left of his torso */}
-            <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-[#FCFCFA] via-[#FCFCFA]/90 to-transparent z-10" />
-            <div className="absolute inset-y-0 left-0 w-[24%] bg-gradient-to-r from-[#FCFCFA] to-transparent z-10" />
+            <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-main-bg via-main-bg/90 to-transparent z-10" />
+            <div className="absolute inset-y-0 left-0 w-[45%] bg-gradient-to-r from-main-bg via-main-bg/90 to-transparent z-10" />
           </div>
 
           <div className="relative z-10 flex flex-col w-full h-full">
@@ -213,11 +213,11 @@ export default function Home() {
             </p>
 
             {/* CTA Buttons - Side by Side exactly like mockup */}
-            <div className="flex items-center gap-3 mb-10 w-full max-w-[85%]">
-              <Link href="/work" className="bg-primary-black text-white px-2 py-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 flex-1 shadow-md hover:bg-primary-black/90 transition-colors">
+            <div className="flex items-center gap-2 mb-10 w-full max-w-full">
+              <Link href="/work" className="bg-primary-black text-white px-2 py-3.5 rounded-xl text-[10px] min-[360px]:text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 shadow-md hover:bg-primary-black/90 transition-colors">
                 View My Work <ArrowRight className="w-3.5 h-3.5" />
               </Link>
-              <Link href="/contact" className="bg-white text-primary-black border border-[#e5e5e5] px-2 py-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 flex-1 shadow-sm hover:bg-[#f9f9f9] transition-colors">
+              <Link href="/contact" className="bg-white text-primary-black border border-[#e5e5e5] px-2 py-3.5 rounded-xl text-[10px] min-[360px]:text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 shadow-sm hover:bg-[#f9f9f9] transition-colors">
                 Let's Talk <MessageCircle className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -253,7 +253,7 @@ export default function Home() {
             </div>
 
             {/* Bottom Banner */}
-            <div className="group/banner bg-gradient-to-br from-[#f2f2f2] to-[#fafafa] hover:from-[#f8f5f0] hover:to-[#f4eedf] rounded-2xl p-4 flex items-center justify-between border border-[#eaeaea] shadow-sm w-full transition-all duration-500 ease-out">
+            <div className="group/banner bg-gradient-to-br from-[#f2f2f2] to-[#fafafa] hover:from-[#f8f5f0] hover:to-[#f4eedf] rounded-2xl p-3.5 min-[375px]:p-4 flex items-center justify-between border border-[#eaeaea] shadow-sm w-full transition-all duration-500 ease-out gap-2 min-[375px]:gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-primary-black flex items-center justify-center shrink-0">
                   <span className="text-white font-display text-lg tracking-widest font-light ml-1">AN</span>
@@ -263,7 +263,7 @@ export default function Home() {
                   <p className="text-[9px] text-[#888] group-hover/banner:text-accent-gold tracking-wider uppercase font-semibold transition-colors duration-500 ease-out">Strategy. Automation. Results.</p>
                 </div>
               </div>
-              <div className="shrink-0 text-primary-black/20 group-hover/banner:text-accent-gold pr-1 transition-colors duration-500 ease-out">
+              <div className="hidden min-[360px]:block shrink-0 text-primary-black/20 group-hover/banner:text-accent-gold pr-1 transition-colors duration-500 ease-out">
                 <TrendingUp className="w-7 h-7 group-hover/banner:scale-110 transition-transform duration-500" strokeWidth={1.5} />
               </div>
             </div>
@@ -279,44 +279,44 @@ export default function Home() {
             transition={{ duration: 1.4, ease: "easeOut" }}
             className="absolute inset-0 z-0"
           >
-            <div className="absolute inset-0 w-[50%] right-0 ml-auto">
+            <div className="absolute inset-0 w-[55%] lg:w-[50%] right-0 ml-auto">
               <Image
                 src={profile.heroImageUrl}
                 alt="Ankit Nishad"
                 fill
                 priority
                 className="object-cover object-right-top grayscale"
-                sizes="50vw"
+                sizes="(max-width: 1024px) 55vw, 50vw"
               />
             </div>
-            {/* Left-to-right gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-main-bg via-main-bg/90 via-[40%] to-transparent z-10" />
+            {/* Left-to-right gradient - extended further right for iPads */}
+            <div className="absolute inset-0 bg-gradient-to-r from-main-bg via-main-bg/95 via-[55%] md:via-[60%] lg:via-[55%] to-transparent z-10" />
             <div className="absolute inset-0 bg-gradient-to-t from-main-bg via-transparent to-transparent z-10" />
           </motion.div>
 
           {/* Vertical professional label and year */}
-          <div className="absolute left-6 bottom-16 hidden xl:flex flex-col items-center gap-6 z-20 text-[10px] tracking-[0.3em] uppercase text-muted-grey">
+          <div className="absolute left-4 md:left-8 lg:left-10 xl:left-12 bottom-16 hidden md:flex flex-col items-center gap-6 z-20 text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-muted-grey">
             <span className="[writing-mode:vertical-rl] -rotate-180 select-none whitespace-nowrap">
               {profile.professionalHeadline || "IT Sales & Business Automation"}
             </span>
-            <div className="w-[1px] h-16 bg-border-grey" />
+            <div className="w-[1px] h-12 md:h-16 bg-border-grey" />
             <span className="select-none font-medium text-primary-black">2026</span>
           </div>
 
-          <div className="max-w-[1440px] mx-auto px-12 lg:px-24 w-full relative z-20 pb-12 pt-40 md:py-24">
-            <div className="max-w-[700px] relative">
+          <div className="max-w-[1440px] mx-auto px-16 md:px-24 lg:px-32 xl:px-40 w-full relative z-20 pb-12 pt-32 md:py-24">
+            <div className="max-w-[400px] md:max-w-[480px] lg:max-w-[580px] xl:max-w-[680px] relative">
               {/* Top metrics summary */}
-              <div className="flex gap-16 mb-12">
+              <div className="flex gap-10 md:gap-14 lg:gap-16 mb-10">
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
                   className="flex flex-col"
                 >
-                  <span className="font-display text-5xl font-light text-primary-black">
+                  <span className="font-display text-4xl md:text-5xl lg:text-[3.25rem] font-light text-primary-black leading-none">
                     {metrics.projectsDelivered}
                   </span>
-                  <span className="text-[10px] tracking-widest uppercase text-muted-grey mt-1.5">
+                  <span className="text-[9px] md:text-[10px] tracking-widest uppercase text-muted-grey mt-2">
                     Projects Delivered
                   </span>
                 </motion.div>
@@ -326,10 +326,10 @@ export default function Home() {
                   transition={{ duration: 0.6, delay: 0.15 }}
                   className="flex flex-col"
                 >
-                  <span className="font-display text-5xl font-light text-primary-black">
+                  <span className="font-display text-4xl md:text-5xl lg:text-[3.25rem] font-light text-primary-black leading-none">
                     {metrics.businessConsultations}
                   </span>
-                  <span className="text-[10px] tracking-widest uppercase text-muted-grey mt-1.5">
+                  <span className="text-[9px] md:text-[10px] tracking-widest uppercase text-muted-grey mt-2">
                     Consultations Completed
                   </span>
                 </motion.div>
@@ -342,10 +342,10 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.3 }}
                 className="mb-8"
               >
-                <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3">
+                <span className="font-display text-[10px] md:text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3">
                   Hello, I'm {profile.fullName}
                 </span>
-                <h1 className="font-display text-[2.75rem] lg:text-5xl font-extralight text-primary-black tracking-tight leading-tight mb-6">
+                <h1 className="font-display text-[2.25rem] md:text-4xl lg:text-5xl font-extralight text-primary-black tracking-tight leading-tight mb-6">
                   {profile.heroHeading ? (
                     profile.heroHeading
                   ) : (
@@ -354,7 +354,7 @@ export default function Home() {
                     </>
                   )}
                 </h1>
-                <p className="max-w-[540px] text-base text-dark-grey font-light leading-relaxed">
+                <p className="max-w-[540px] text-sm md:text-base text-dark-grey font-light leading-relaxed">
                   {profile.heroSupportingText || profile.shortTagline}
                 </p>
               </motion.div>
@@ -364,18 +364,18 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
-                className="flex flex-wrap items-center gap-6 mt-4"
+                className="flex flex-wrap items-center gap-4 md:gap-6 mt-4"
               >
                 <Link
                   href="/work"
-                  className="group inline-flex items-center gap-1.5 bg-primary-black text-white hover:bg-transparent hover:text-primary-black border border-primary-black px-6 py-3.5 text-xs font-sans uppercase tracking-widest transition-all duration-300 font-semibold shadow-md"
+                  className="group inline-flex items-center gap-1.5 bg-primary-black text-white hover:bg-transparent hover:text-primary-black border border-primary-black px-5 md:px-6 py-3 md:py-3.5 text-[10px] md:text-xs font-sans uppercase tracking-widest transition-all duration-300 font-semibold shadow-md"
                 >
                   View My Work
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/contact"
-                  className="group inline-flex items-center gap-1.5 border border-border-grey hover:border-primary-black px-6 py-3.5 text-xs font-sans uppercase tracking-widest text-dark-grey hover:text-primary-black transition-all duration-300 backdrop-blur-sm bg-white/40 shadow-sm"
+                  className="group inline-flex items-center gap-1.5 border border-border-grey hover:border-primary-black px-5 md:px-6 py-3 md:py-3.5 text-[10px] md:text-xs font-sans uppercase tracking-widest text-dark-grey hover:text-primary-black transition-all duration-300 backdrop-blur-sm bg-white/40 shadow-sm"
                 >
                   Let's Talk
                 </Link>

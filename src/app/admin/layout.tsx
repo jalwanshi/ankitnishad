@@ -12,6 +12,7 @@ import {
   Sliders,
   FolderClosed,
   MailOpen,
+  Mail,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -19,7 +20,9 @@ import {
   Image as ImageIcon,
   Share2,
   Globe,
-  FileText
+  FileText,
+  Award,
+  Bell
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -61,11 +64,14 @@ export default function AdminLayout({
     { name: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
     { name: "Profile & Bio", href: "/admin/profile", icon: <User className="w-4 h-4" /> },
     { name: "Statistics", href: "/admin/statistics", icon: <Sliders className="w-4 h-4" /> },
+    { name: "Manage Skills", href: "/admin/skills", icon: <Award className="w-4 h-4" /> },
     { name: "Visual Assets", href: "/admin/assets", icon: <ImageIcon className="w-4 h-4" /> },
     { name: "Career Timeline", href: "/admin/career", icon: <Briefcase className="w-4 h-4" /> },
     { name: "Case Studies", href: "/admin/projects", icon: <FolderClosed className="w-4 h-4" /> },
     { name: "Blog Articles", href: "/admin/blog", icon: <FileText className="w-4 h-4" /> },
     { name: "Contact Enquiries", href: "/admin/enquiries", icon: <MailOpen className="w-4 h-4" /> },
+    { name: "Subscribers", href: "/admin/subscribers", icon: <Mail className="w-4 h-4" /> },
+    { name: "Follow-Up CRM", href: "/admin/follow-ups", icon: <Bell className="w-4 h-4" /> },
     { name: "Social Links", href: "/admin/socials", icon: <Share2 className="w-4 h-4" /> },
     { name: "Website Settings", href: "/admin/settings", icon: <Settings className="w-4 h-4" /> },
   ];

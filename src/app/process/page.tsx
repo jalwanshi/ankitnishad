@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, ArrowDown } from "lucide-react";
+import ProcessSimulator from "@/components/widgets/ProcessSimulator";
 
 export default function Process() {
   const steps = [
@@ -106,6 +107,11 @@ export default function Process() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Process Discovery Simulator Section */}
+        <div className="mt-28">
+          <ProcessSimulator />
         </div>
 
         {/* Bottom CTA Block */}

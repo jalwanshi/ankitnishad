@@ -80,6 +80,7 @@ export interface CaseStudy {
   projectType?: string;
   year?: string;
   status?: string;
+  timeline?: string;
   actualResults?: {
     timeSaved?: string;
     workReduced?: string;

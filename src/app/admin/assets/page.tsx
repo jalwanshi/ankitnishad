@@ -163,7 +163,7 @@ export default function AdminAssets() {
               </h3>
             </div>
             <p className="text-[10px] uppercase tracking-widest text-muted-grey mb-4 leading-relaxed">
-              Recommended dimensions: **800 x 1000 px** (4:5 Aspect Ratio). Images up to 15MB are automatically compressed and saved as Firestore-safe Base64.
+              Recommended dimensions: <strong className="font-semibold text-primary-black">800 x 1000 px</strong> (4:5 Aspect Ratio). Images up to 15MB are automatically compressed and saved as Firestore-safe Base64.
             </p>
             {profile.heroImageUrl ? (
               <div className="relative aspect-[4/5] max-w-[200px] border border-border-grey bg-soft-bg mb-4 mx-auto select-none overflow-hidden">
@@ -204,7 +204,7 @@ export default function AdminAssets() {
               </h3>
             </div>
             <p className="text-[10px] uppercase tracking-widest text-muted-grey mb-4 leading-relaxed">
-              Recommended dimensions: **800 x 1000 px** (4:5 Aspect Ratio). Images up to 15MB are automatically compressed and saved as Firestore-safe Base64.
+              Recommended dimensions: <strong className="font-semibold text-primary-black">800 x 1000 px</strong> (4:5 Aspect Ratio). Images up to 15MB are automatically compressed and saved as Firestore-safe Base64.
             </p>
             {profile.aboutImageUrl ? (
               <div className="relative aspect-[4/5] max-w-[200px] border border-border-grey bg-soft-bg mb-4 mx-auto select-none overflow-hidden">

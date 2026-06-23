@@ -2,17 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { getMetrics } from "@/services/profileService";
+import { getSkills } from "@/services/skillsService";
+import { Skill } from "@/types/portfolio";
 
 export default function Expertise() {
-  const [metrics, setMetrics] = useState<any>({ projectsDelivered: "", businessConsultations: "", toolsHandled: "", industryDomains: "", happyClients: "", automationsBuilt: "" });
+  const [metrics, setMetrics] = useState<any>({ 
+    projectsDelivered: "", 
+    businessConsultations: "", 
+    toolsHandled: "", 
+    industryDomains: "", 
+    happyClients: "", 
+    automationsBuilt: "" 
+  });
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadExpertiseData() {
       try {
-        const m = await getMetrics();
+        setLoading(true);
+        const [m, s] = await Promise.all([getMetrics(), getSkills()]);
+        
         if (m) {
           setMetrics({
             projectsDelivered: m.projectsDelivered?.enabled ? m.projectsDelivered.value : "",
@@ -23,37 +36,18 @@ export default function Expertise() {
             automationsBuilt: m.automationsBuilt?.enabled ? m.automationsBuilt.value : ""
           });
         }
+        
+        if (s) {
+          setSkills(s);
+        }
       } catch (err) {
-        console.error("Failed to load metrics on expertise page:", err);
+        console.error("Failed to load metrics or skills on expertise page:", err);
+      } finally {
+        setLoading(false);
       }
     }
     loadExpertiseData();
   }, []);
-
-  const skillGroups = [
-    {
-      title: "Business Development & Sales",
-      description: "Driving client relationships, drafting custom proposals, and mapping operational objectives to software solutions.",
-      skills: [
-        { name: "Business Process Understanding", percentage: 90, label: "Expert" },
-        { name: "Sales & Solution Strategy", percentage: 85, label: "Advanced" },
-        { name: "Client Communication", percentage: 90, label: "Expert" },
-        { name: "Leads & Automation", percentage: 85, label: "Advanced" },
-        { name: "Requirements Analysis", percentage: 85, label: "Advanced" },
-        { name: "Project Coordination", percentage: 80, label: "Advanced" }
-      ]
-    },
-    {
-      title: "Business Process & Automation",
-      description: "Mapping current states, identifying operational bottlenecks, and designing automated database and workflow systems.",
-      skills: [
-        { name: "Process Mapping", percentage: 90, label: "Expert" },
-        { name: "Automation Strategy", percentage: 90, label: "Expert" },
-        { name: "Software Consultation", percentage: 90, label: "Expert" },
-        { name: "CRM / ERP / Odoo / Reporting", percentage: 85, label: "Advanced" }
-      ]
-    }
-  ];
 
   const toolsList = [
     { name: "Make.com", type: "Automation Hub" },
@@ -68,10 +62,44 @@ export default function Expertise() {
     { name: "MS Excel / Sheets", type: "Data Systems" }
   ];
 
+  // Dynamic Group Descriptions map
+  const groupDescriptions: Record<string, string> = {
+    "Business Development": "Driving client relationships,solutioning proposals,and mapping operational objectives to system architectures.",
+    "Process Automation": "Mapping current states,identifying operational bottlenecks,and designing automated database and workflow systems.",
+    "Technical Development": "Designing customized database schemas,building APIs,and deploying secure scripts to run workflow systems."
+  };
+
+  // Group skills dynamically in-memory
+  const groupedSkills = skills.reduce((acc, skill) => {
+    const groupName = skill.group || "Other Capabilities";
+    if (!acc[groupName]) {
+      acc[groupName] = [];
+    }
+    acc[groupName].push(skill);
+    return acc;
+  }, {} as Record<string, Skill[]>);
+
+  const getFormatPercentageLabel = (percentage: number) => {
+    if (percentage >= 90) return "Expert";
+    if (percentage >= 75) return "Advanced";
+    return "Proficient";
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-main-bg py-32 relative overflow-hidden flex justify-center items-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-black border-t-transparent"></div>
+          <span className="text-[10px] uppercase tracking-widest text-muted-grey font-medium">Loading Capabilities...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen relative overflow-hidden bg-main-bg py-20">
       {/* BACKGROUND WATERMARK */}
-      <div className="absolute right-[-100px] bottom-10 font-display font-black text-primary-black/[0.01] text-[30rem] md:text-[50rem] leading-none select-none pointer-events-none z-0">
+      <div className="absolute right-[-100px] top-10 font-display font-black text-primary-black/[0.01] text-[30rem] md:text-[50rem] leading-none select-none pointer-events-none z-0">
         AN
       </div>
 
@@ -81,7 +109,7 @@ export default function Expertise() {
           <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3 animate-fade-up">
             Capabilities
           </span>
-          <h1 className="font-display text-5xl md:text-7xl font-extralight text-primary-black tracking-tight animate-fade-up delay-100">
+          <h1 className="font-display text-5xl md:text-7xl font-extralight text-primary-black tracking-tight animate-fade-up delay-100 uppercase">
             Skills & Expertise.
           </h1>
         </div>
@@ -95,40 +123,46 @@ export default function Expertise() {
 
         {/* Skill Groups Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24">
-          {skillGroups.map((group, groupIdx) => (
-            <div key={groupIdx} className="flex flex-col justify-start">
-              <h3 className="font-display text-2xl font-light text-primary-black mb-2 border-b border-border-grey pb-4">
-                {group.title}
-              </h3>
-              <p className="text-xs font-light text-muted-grey mb-8">
-                {group.description}
-              </p>
- 
-              {/* Progress bars list */}
-              <div className="space-y-6">
-                {group.skills.map((skill, skillIdx) => (
-                  <div key={skillIdx} className="flex flex-col">
-                    <div className="flex items-center justify-between text-xs mb-2 uppercase tracking-wider">
-                      <span className="font-medium text-primary-black">{skill.name}</span>
-                      <span className="text-muted-grey font-light">
-                        {skill.percentage}% ({skill.label})
-                      </span>
-                    </div>
-                    {/* Animated bar background */}
-                    <div className="w-full h-[3px] bg-border-grey overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${skill.percentage}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, delay: skillIdx * 0.1 }}
-                        className="h-full bg-primary-black"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {Object.keys(groupedSkills).length === 0 ? (
+            <div className="lg:col-span-2 text-center py-10 text-xs text-muted-grey uppercase tracking-widest border border-dashed border-border-grey bg-white rounded-xl">
+              No capability indicators added in database.
             </div>
-          ))}
+          ) : (
+            Object.entries(groupedSkills).map(([groupTitle, groupSkills], idx) => (
+              <div key={groupTitle} className="flex flex-col justify-start">
+                <h3 className="font-display text-2xl font-light text-primary-black mb-2 border-b border-border-grey pb-4 uppercase tracking-wide flex items-center gap-2">
+                  {groupTitle} <Sparkles className="w-4 h-4 text-accent-gold" />
+                </h3>
+                <p className="text-xs font-light text-muted-grey mb-8">
+                  {groupDescriptions[groupTitle] || "Demonstrated professional competency and technical project execution."}
+                </p>
+
+                {/* Progress bars list */}
+                <div className="space-y-6">
+                  {groupSkills.map((skill, skillIdx) => (
+                    <div key={skill.id} className="flex flex-col">
+                      <div className="flex items-center justify-between text-xs mb-2 uppercase tracking-wider">
+                        <span className="font-medium text-primary-black">{skill.name}</span>
+                        <span className="text-muted-grey font-light">
+                          {skill.percentage}% ({getFormatPercentageLabel(skill.percentage)})
+                        </span>
+                      </div>
+                      {/* Animated bar background */}
+                      <div className="w-full h-[3px] bg-border-grey overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${skill.percentage}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 1, delay: skillIdx * 0.08 }}
+                          className="h-full bg-primary-black"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Tools and Technologies Table */}
@@ -137,7 +171,7 @@ export default function Expertise() {
             <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-grey font-semibold block mb-3">
               Tools
             </span>
-            <h3 className="font-display text-3xl font-light text-primary-black">
+            <h3 className="font-display text-3xl font-light text-primary-black uppercase tracking-wide">
               Platforms & Software Ecosystem
             </h3>
           </div>
@@ -146,7 +180,7 @@ export default function Expertise() {
             {toolsList.map((tool, i) => (
               <div
                 key={i}
-                className="border border-border-grey bg-white p-6 hover:border-primary-black hover:shadow-sm transition-all duration-300"
+                className="border border-border-grey bg-white p-6 hover:border-primary-black hover:shadow-sm transition-all duration-300 rounded-xl"
               >
                 <span className="font-display text-base font-normal text-primary-black block mb-1">
                   {tool.name}

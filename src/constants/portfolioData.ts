@@ -278,7 +278,7 @@ export const projectsData: Project[] = [
       "Lack of real-time financial tracking for hospital stakeholders"
     ],
     proposedSolution: "Architected a centralized hospital operations dashboard integrating patient registration with Odoo financial accounting modules, automating patient data flow across billing and clinics.",
-    ankitRole: "Requirement discovery, system architecture consulting, and project delivery coordination between clinical heads and the developer team.",
+    ankitRole: "I led requirement discovery, system architecture consulting, and project delivery coordination between clinical heads and the developer team.",
     actualResults: {
       timeSaved: "40% patient check-in time saved",
       workReduced: "60% manual billing work reduced",
@@ -305,7 +305,7 @@ export const projectsData: Project[] = [
       "Unorganized storage structure with no search functionality"
     ],
     proposedSolution: "Designed an AWS S3-powered secure document manager with strict folder version control, metadata tagging, instant search, and automated email approvals.",
-    ankitRole: "Conducted design discovery sessions, mapped out permission controls, and wrote detailed SRS documentation.",
+    ankitRole: "I conducted design discovery sessions, mapped out permission controls, and wrote detailed SRS documentation.",
     actualResults: {
       timeSaved: "30% blueprint retrieval speed improvement",
       workReduced: "50% review loop speedup",
@@ -332,7 +332,7 @@ export const projectsData: Project[] = [
       "Manual entry of lead source data causing inaccurate attribution reports"
     ],
     proposedSolution: "Set up and optimized HubSpot CRM integrated with Zapier lead capture modules, custom pipelines, automated notifications, and B2B email triggers.",
-    ankitRole: "Configured pipeline stages, mapped data fields, set up Zapier automation paths, and conducted training for 15+ sales agents.",
+    ankitRole: "I configured pipeline stages, mapped data fields, set up Zapier automation paths, and conducted training for 15+ sales agents.",
     actualResults: {
       timeSaved: "Response time reduced to less than 1 hour",
       workReduced: "80% manual pipeline data entry eliminated",

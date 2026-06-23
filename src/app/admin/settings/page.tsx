@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { getProfile, saveProfile } from "@/services/profileService";
+import { changeAdminPin } from "@/services/securityService";
 import { Profile } from "@/types/portfolio";
-import { Settings, Globe, Shield, RefreshCw } from "lucide-react";
+import { Settings, Globe, Shield, Lock } from "lucide-react";
 
 export default function AdminSettings() {
   const [formData, setFormData] = useState<Profile | null>(null);
@@ -11,6 +12,10 @@ export default function AdminSettings() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "success" });
   const [activeTab, setActiveTab] = useState("seo");
+
+  // PIN state
+  const [newPin, setNewPin] = useState("");
+  const [isChangingPin, setIsChangingPin] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -44,6 +49,26 @@ export default function AdminSettings() {
     }
   };
 
+  const handlePinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPin.length !== 6 || !/^\d+$/.test(newPin)) {
+      setMessage({ text: "PIN must be exactly 6 digits.", type: "error" });
+      return;
+    }
+    setIsChangingPin(true);
+    setMessage({ text: "", type: "success" });
+    try {
+      await changeAdminPin(newPin);
+      setMessage({ text: "Admin login PIN updated securely!", type: "success" });
+      setNewPin("");
+      setTimeout(() => setMessage({ text: "", type: "success" }), 3000);
+    } catch (err: any) {
+      setMessage({ text: err.message || "Failed to update PIN.", type: "error" });
+    } finally {
+      setIsChangingPin(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
@@ -63,7 +88,8 @@ export default function AdminSettings() {
 
   const tabs = [
     { id: "seo", label: "Global SEO", icon: <Globe className="w-4 h-4" /> },
-    { id: "general", label: "General Configuration", icon: <Settings className="w-4 h-4" /> }
+    { id: "general", label: "General Configuration", icon: <Settings className="w-4 h-4" /> },
+    { id: "security", label: "Security & PIN", icon: <Shield className="w-4 h-4" /> }
   ];
 
   return (
@@ -93,7 +119,7 @@ export default function AdminSettings() {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => { setActiveTab(tab.id); setMessage({ text: "", type: "success" }); }}
             className={`flex items-center gap-2 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
               activeTab === tab.id
                 ? "bg-primary-black text-white"
@@ -106,100 +132,147 @@ export default function AdminSettings() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="border border-border-grey bg-white p-8 space-y-6">
-        {/* Tab 1: Global SEO */}
-        {activeTab === "seo" && (
-          <div className="space-y-6">
-            <div className="flex flex-col">
-              <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">
-                Homepage SEO Title
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.seoTitle}
-                onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
-                className="w-full border border-border-grey bg-main-bg py-3 px-4 text-xs font-light focus:outline-none focus:border-primary-black"
-              />
-              <span className="text-[9px] text-muted-grey mt-1 uppercase tracking-wider">
-                Recommended length: 50-60 characters. Shows in search engine listings and browser tabs.
-              </span>
-            </div>
+      <div className="border border-border-grey bg-white p-8">
+        {activeTab !== "security" ? (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Tab 1: Global SEO */}
+            {activeTab === "seo" && (
+              <div className="space-y-6">
+                <div className="flex flex-col">
+                  <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">
+                    Homepage SEO Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.seoTitle}
+                    onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
+                    className="w-full border border-border-grey bg-main-bg py-3 px-4 text-xs font-light focus:outline-none focus:border-primary-black"
+                  />
+                  <span className="text-[9px] text-muted-grey mt-1 uppercase tracking-wider">
+                    Recommended length: 50-60 characters. Shows in search engine listings and browser tabs.
+                  </span>
+                </div>
 
-            <div className="flex flex-col">
-              <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">
-                SEO Meta Description
-              </label>
-              <textarea
-                rows={4}
-                required
-                value={formData.seoDescription}
-                onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
-                className="w-full border border-border-grey bg-main-bg py-3 px-4 text-xs font-light focus:outline-none focus:border-primary-black resize-none"
-              />
-              <span className="text-[9px] text-muted-grey mt-1 uppercase tracking-wider">
-                Recommended length: 150-160 characters. A brief summary of the portfolio page contents.
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 2: General Settings */}
-        {activeTab === "general" && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">
-                  System Email (Admin Notifications)
-                </label>
-                <input
-                  type="email"
-                  disabled
-                  value={formData.email}
-                  className="border border-border-grey bg-soft-bg py-3 px-4 text-xs font-light focus:outline-none cursor-not-allowed text-muted-grey"
-                />
-                <span className="text-[9px] text-muted-grey mt-1 uppercase tracking-wider">
-                  Configured under Profile details.
-                </span>
+                <div className="flex flex-col">
+                  <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">
+                    SEO Meta Description
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={formData.seoDescription}
+                    onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
+                    className="w-full border border-border-grey bg-main-bg py-3 px-4 text-xs font-light focus:outline-none focus:border-primary-black resize-none"
+                  />
+                  <span className="text-[9px] text-muted-grey mt-1 uppercase tracking-wider">
+                    Recommended length: 150-160 characters. A brief summary of the portfolio page contents.
+                  </span>
+                </div>
               </div>
+            )}
 
-              <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">
-                  Default Locality / Country
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="border border-border-grey bg-main-bg py-3 px-4 text-xs font-light focus:outline-none focus:border-primary-black"
-                />
+            {/* Tab 2: General Settings */}
+            {activeTab === "general" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex flex-col">
+                    <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">
+                      System Email (Admin Notifications)
+                    </label>
+                    <input
+                      type="email"
+                      disabled
+                      value={formData.email}
+                      className="border border-border-grey bg-soft-bg py-3 px-4 text-xs font-light focus:outline-none cursor-not-allowed text-muted-grey"
+                    />
+                    <span className="text-[9px] text-muted-grey mt-1 uppercase tracking-wider">
+                      Configured under Profile details.
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">
+                      Default Locality / Country
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="border border-border-grey bg-main-bg py-3 px-4 text-xs font-light focus:outline-none focus:border-primary-black"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-4 bg-soft-bg border border-border-grey flex items-start gap-3 mt-4">
+                  <Shield className="w-5 h-5 text-muted-grey flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-[10px] uppercase font-semibold text-primary-black tracking-wider">
+                      Security Check & Storage Scopes
+                    </h4>
+                    <p className="text-[10px] text-muted-grey leading-relaxed mt-1">
+                      Access token validations, document writes and asset storage are secured by Firebase rules. 
+                      Admins must have an active entry inside the `adminUsers` Firestore collection matching their UID.
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="p-4 bg-soft-bg border border-border-grey flex items-start gap-3 mt-4">
-              <Shield className="w-5 h-5 text-muted-grey flex-shrink-0 mt-0.5" />
+            <button
+              type="submit"
+              disabled={saving}
+              className="bg-primary-black text-white hover:bg-transparent hover:text-primary-black border border-primary-black px-6 py-3 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer disabled:opacity-50 mt-6"
+            >
+              {saving ? "Saving Settings..." : "Save Settings"}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handlePinSubmit} className="space-y-6">
+            <div className="p-6 bg-soft-bg border border-border-grey rounded-xl flex items-start gap-4">
+              <Lock className="w-8 h-8 text-primary-black shrink-0 mt-1" />
               <div>
-                <h4 className="text-[10px] uppercase font-semibold text-primary-black tracking-wider">
-                  Security Check & Storage Scopes
+                <h4 className="text-xs uppercase font-semibold text-primary-black tracking-wider mb-2">
+                  Admin Gateway PIN Code
                 </h4>
-                <p className="text-[10px] text-muted-grey leading-relaxed mt-1">
-                  Access token validations, document writes and asset storage are secured by Firebase rules. 
-                  Admins must have an active entry inside the `adminUsers` Firestore collection matching their UID.
+                <p className="text-[11px] text-muted-grey leading-relaxed max-w-lg">
+                  This 6-digit PIN acts as a pre-authorization lock before rendering the actual login form. 
+                  It helps obfuscate the login page from uninvited guests. Only you can change it here.
                 </p>
               </div>
             </div>
-          </div>
-        )}
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-primary-black text-white hover:bg-transparent hover:text-primary-black border border-primary-black px-6 py-3 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer disabled:opacity-50"
-        >
-          {saving ? "Saving Settings..." : "Save Settings"}
-        </button>
-      </form>
+            <div className="flex flex-col max-w-sm">
+              <label className="text-[9px] uppercase tracking-widest text-muted-grey font-semibold mb-2">
+                New 6-Digit PIN
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                required
+                maxLength={6}
+                value={newPin}
+                onChange={(e) => {
+                  if (/^\d*$/.test(e.target.value)) {
+                    setNewPin(e.target.value);
+                  }
+                }}
+                placeholder="e.g. 020605"
+                className="w-full border border-border-grey bg-main-bg py-3 px-4 text-xs font-light focus:outline-none focus:border-primary-black transition-colors"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isChangingPin || newPin.length !== 6}
+              className="bg-primary-black text-white hover:bg-transparent hover:text-primary-black border border-primary-black px-6 py-3 text-xs uppercase tracking-widest font-semibold transition-colors cursor-pointer disabled:opacity-50 mt-6"
+            >
+              {isChangingPin ? "Updating Security..." : "Update PIN Code"}
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

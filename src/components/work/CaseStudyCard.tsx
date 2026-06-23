@@ -37,7 +37,7 @@ export default function CaseStudyCard({
           alt={`${project.title} case study`}
           fill
           unoptimized={imageSource.startsWith("data:")}
-          className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+          className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-[1.04]"
           sizes={imageSizes}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-primary-black/45 via-transparent to-transparent" />
