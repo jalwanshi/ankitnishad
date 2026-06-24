@@ -3,49 +3,64 @@ import { Home, Compass } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#FAFAFA] text-left relative overflow-hidden font-sans">
+    <div className="h-screen w-screen flex flex-col justify-between bg-[#FAFAFA] text-left relative overflow-hidden font-sans select-none">
+      {/* CSS Hack to hide header and footer on this page and remove layout top padding */}
+      <style>{`
+        header, footer {
+          display: none !important;
+        }
+        main {
+          padding-top: 0 !important;
+          height: 100vh !important;
+          overflow: hidden !important;
+        }
+      `}</style>
+
       {/* Spacer to push content to center */}
-      <div />
+      <div className="flex-grow" />
 
       {/* Main Grid Container */}
-      <div className="max-w-[1440px] w-full mx-auto px-6 md:px-12 lg:px-24 py-12 flex flex-col-reverse lg:flex-row items-center justify-between gap-12 relative z-10">
+      <div className="max-w-[1200px] w-full mx-auto px-6 md:px-12 lg:px-24 flex flex-col-reverse lg:flex-row items-center justify-between gap-6 lg:gap-12 relative z-10">
         
         {/* Left Side: Text Details */}
-        <div className="flex flex-col items-start text-left space-y-6 max-w-md lg:w-1/2">
-          <h1 className="font-display text-8xl md:text-[10rem] font-extrabold text-[#1A1A1A] leading-none tracking-tighter">
+        <div className="flex flex-col items-start text-left space-y-4 max-w-md lg:w-1/2">
+          <h1 className="font-display text-7xl md:text-8xl lg:text-[8.5rem] font-extrabold text-[#1A1A1A] leading-none tracking-tighter">
             404
           </h1>
-          <h2 className="font-display text-lg md:text-xl font-bold text-[#1A1A1A] tracking-[0.25em] uppercase">
+          <h2 className="font-display text-sm md:text-base font-bold text-[#1A1A1A] tracking-[0.25em] uppercase">
             Page Not Found
           </h2>
-          <p className="text-xs md:text-sm text-[#525252] font-light leading-relaxed max-w-xs">
+          <p className="text-[11px] md:text-xs text-[#525252] font-light leading-relaxed max-w-xs">
             Oops! The page you're looking for doesn't exist or has been moved.
           </p>
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white hover:bg-transparent hover:text-black border border-[#1A1A1A] px-6 py-3.5 text-xs font-sans uppercase tracking-widest transition-all duration-300 font-bold rounded-lg cursor-pointer"
+              className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white hover:bg-transparent hover:text-black border border-[#1A1A1A] px-5 py-3 text-[10px] font-sans uppercase tracking-widest transition-all duration-300 font-bold rounded-lg cursor-pointer"
             >
               Go Home
-              <Home className="w-3.5 h-3.5" />
+              <Home className="w-3 h-3" />
             </Link>
           </div>
         </div>
 
         {/* Right Side: Astronaut Illustration */}
-        <div className="flex justify-center items-center lg:w-1/2 w-full max-w-[420px] lg:max-w-none">
+        <div className="flex justify-center items-center lg:w-1/2 w-full max-w-[320px] md:max-w-[360px] lg:max-w-none">
           <img
             src="/assets/astronaut_lost.png"
             alt="Lost Astronaut"
-            className="w-full h-auto max-w-[450px] object-contain select-none"
+            className="w-full h-auto max-w-[340px] md:max-w-[380px] lg:max-w-[420px] object-contain select-none"
           />
         </div>
       </div>
 
+      {/* Spacer to push trackbar to bottom */}
+      <div className="flex-grow" />
+
       {/* Bottom Trackbar */}
-      <div className="w-full flex items-center justify-center gap-2.5 pb-12 text-[10px] uppercase tracking-widest text-[#737373] z-10 px-6 text-center">
-        <div className="flex items-center gap-2 border border-[#E5E5E5] bg-white px-4 py-2.5 rounded-full shadow-sm">
-          <Compass className="w-3.5 h-3.5 text-[#525252]" />
+      <div className="w-full flex items-center justify-center gap-2.5 pb-8 text-[9px] uppercase tracking-widest text-[#737373] z-10 px-6 text-center">
+        <div className="flex items-center gap-2 border border-[#E5E5E5] bg-white px-3.5 py-2 rounded-full shadow-sm">
+          <Compass className="w-3 h-3 text-[#525252]" />
           <span>Let's get you back on track.</span>
           <Link href="/" className="font-bold text-[#1A1A1A] hover:underline underline-offset-4">
             Return to Home
