@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local setup scripts
 setup-pin.ts
+
+# npm cache
+.npm-cache/

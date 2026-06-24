@@ -65,7 +65,7 @@ export default function Footer() {
               Let's turn your business challenge into the right opportunity.
             </p>
             <Link
-              href="/contact"
+              href="/request-service"
               className="group inline-flex items-center gap-2 bg-white text-primary-black hover:bg-transparent hover:text-white border border-white px-6 py-4 text-xs font-sans uppercase tracking-widest transition-all duration-300 font-semibold"
             >
               Let's Discuss Your Project
