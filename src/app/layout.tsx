@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import JsonLd from "@/components/seo/JsonLd";
 import GlobalLoader from "@/components/ui/GlobalLoader";
 import DynamicSEO from "@/components/seo/DynamicSEO";
+import OfflineOverlay from "@/components/ui/OfflineOverlay";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-main-bg text-text-black font-sans selection:bg-primary-black selection:text-white">
         {!isAdminRoute && <GlobalLoader />}
         {!isAdminRoute && <JsonLd />}
+        <OfflineOverlay />
         {!isAdminRoute && <Header />}
         {isAdminRoute ? (
           <>{children}</>
