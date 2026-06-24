@@ -3,7 +3,22 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { fullName, companyName, designation, email, phone, serviceRequired, challenge, industry } = body;
+    const { 
+      fullName, 
+      companyName, 
+      designation, 
+      email, 
+      phone, 
+      serviceRequired, 
+      challenge, 
+      industry,
+      website,
+      companySize,
+      currentTools,
+      currentProcess,
+      budget,
+      timeline
+    } = body;
 
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -14,13 +29,17 @@ export async function POST(request: Request) {
     }
 
     const messageText = 
-      `🔔 *New Portfolio Enquiry!*\n\n` +
+      `🔔 *New Detailed Project Brief!*\n\n` +
       `👤 *Name:* ${fullName || "N/A"}${designation ? ` (${designation})` : ""}\n` +
-      `🏢 *Company:* ${companyName || "N/A"}\n` +
-      `🏭 *Industry:* ${industry || "N/A"}\n` +
+      `🏢 *Company:* ${companyName || "N/A"}${website ? ` (${website})` : ""}\n` +
+      `🏭 *Industry:* ${industry || "N/A"}${companySize ? ` (Size: ${companySize})` : ""}\n` +
       `✉️ *Email:* ${email || "N/A"}\n` +
-      `📞 *Phone:* ${phone || "N/A"}\n` +
-      `🛠️ *Service:* ${serviceRequired || "N/A"}\n\n` +
+      `📞 *Phone:* ${phone || "N/A"}\n\n` +
+      `🛠️ *Service:* ${serviceRequired || "N/A"}\n` +
+      `📅 *Timeline:* ${timeline || "N/A"}\n` +
+      `💰 *Budget:* ${budget || "N/A"}\n\n` +
+      `💻 *Tools/Stack:* ${currentTools || "N/A"}\n` +
+      `🔄 *Current Process:* ${currentProcess || "N/A"}\n` +
       `📝 *Process Challenge:* \n_${challenge || "None supplied."}_\n\n` +
       `⚡ _Sent instantly from portfolio CRM_`;
 

@@ -176,9 +176,9 @@ function RequestFormInner() {
                 2
               </div>
               <div>
-                <h5 className="text-xs font-semibold text-primary-black">LinkedIn Connectivity</h5>
+                <h5 className="text-xs font-semibold text-primary-black">Telegram Notification</h5>
                 <p className="text-[10px] text-dark-grey font-light leading-relaxed mt-0.5">
-                  After submitting, your brief copies instantly so we can discuss it immediately on LinkedIn messages.
+                  Your project brief is transmitted immediately to Ankit's private Telegram notification bot.
                 </p>
               </div>
             </li>
@@ -213,10 +213,10 @@ function RequestFormInner() {
               <Check className="w-8 h-8 text-primary-black" />
             </div>
             <h3 className="font-display text-2xl font-light text-primary-black uppercase tracking-wide">
-              Brief Saved & Copied!
+              Brief Sent to Telegram!
             </h3>
             <p className="text-xs text-dark-grey font-light max-w-md mx-auto leading-relaxed">
-              Your service request details have been securely logged in our database. I have copied your project brief to your clipboard. Let's start discussing this on LinkedIn right away!
+              Thank you! Your detailed project briefing has been successfully sent. Ankit has been notified instantly via Telegram and will review your operational requirements shortly.
             </p>
 
             <div className="max-w-md mx-auto bg-[#F7F7F7] border border-border-grey p-4 rounded-lg text-left text-[11px] text-dark-grey font-mono overflow-auto max-h-[180px] whitespace-pre-wrap">
@@ -230,29 +230,18 @@ function RequestFormInner() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto pt-4">
-              <button
-                type="button"
-                onClick={handleLinkedInDirect}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-primary-black text-white hover:bg-transparent hover:text-primary-black border border-primary-black px-6 py-3.5 text-xs font-sans uppercase tracking-widest transition-all duration-300 font-bold rounded-lg cursor-pointer"
+              <Link
+                href="/"
+                className="flex-1 inline-flex items-center justify-center bg-primary-black text-white hover:bg-transparent hover:text-primary-black border border-primary-black px-6 py-3.5 text-xs font-sans uppercase tracking-widest transition-all duration-300 font-bold rounded-lg cursor-pointer"
               >
-                {copied ? (
-                  <>
-                    <Check className="w-4 h-4 text-green-400" />
-                    Copied! Opening...
-                  </>
-                ) : (
-                  <>
-                    <MessageSquare className="w-4 h-4" />
-                    Send on LinkedIn
-                  </>
-                )}
-              </button>
+                Return to Home
+              </Link>
               <button
                 type="button"
                 onClick={() => setIsSuccess(false)}
                 className="flex-1 inline-flex items-center justify-center border border-border-grey hover:border-primary-black px-6 py-3.5 text-xs font-sans uppercase tracking-widest text-muted-grey hover:text-primary-black transition-colors rounded-lg cursor-pointer"
               >
-                Edit Details
+                Submit Another Brief
               </button>
             </div>
           </div>
@@ -556,7 +545,7 @@ function RequestFormInner() {
                   }`}
                 />
                 <label htmlFor="agreeTerms" className="text-[10px] text-dark-grey leading-relaxed font-light select-none cursor-pointer">
-                  I agree to the <Link href="/privacy-policy" target="_blank" className="underline hover:text-primary-black font-semibold">Privacy Policy</Link>. I understand that submitting this form saves my details in this website's local database and copies the summary. I agree to send these details to Ankit on LinkedIn for the final verification and scheduling.
+                  I agree to the <Link href="/privacy-policy" target="_blank" className="underline hover:text-primary-black font-semibold">Privacy Policy</Link>. I understand that submitting this form saves my details in this website's local database and immediately notifies Ankit on Telegram.
                 </label>
               </div>
               {errors.agreeTerms && (
