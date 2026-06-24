@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Home, Compass } from "lucide-react";
 
 export default function NotFound() {
@@ -35,13 +34,10 @@ export default function NotFound() {
 
         {/* Right Side: Astronaut Illustration */}
         <div className="flex justify-center items-center lg:w-1/2 w-full max-w-[420px] lg:max-w-none">
-          <Image
+          <img
             src="/assets/astronaut_lost.png"
             alt="Lost Astronaut"
-            width={450}
-            height={450}
-            priority
-            className="w-full h-auto object-contain select-none"
+            className="w-full h-auto max-w-[450px] object-contain select-none"
           />
         </div>
       </div>
